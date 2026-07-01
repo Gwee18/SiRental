@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Auth\AdminLoginController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -35,12 +37,36 @@ Route::get('/auth/google', [GoogleController::class, 'redirect'])->name('google.
 Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name('google.callback');
 
 // =====================
-// ROUTE CUSTOMER
+// ROUTE VERIFIKASI EMAIL CUSTOMER
 // =====================
+// Catatan: route ini sengaja TIDAK dibungkus middleware 'verified',
+// karena customer yang belum verified justru harus bisa akses halaman ini.
 Route::middleware(['customer'])->group(function () {
+
+    Route::get('/verify-email', function () {
+        return view('auth.verify-email');
+    })->name('verification.notice');
+
+    Route::get('/verify-email/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route('home')->with('status', 'Email berhasil diverifikasi!');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('status', 'Link verifikasi baru sudah dikirim ke email kamu.');
+    })->middleware('throttle:6,1')->name('verification.send');
+
+});
+
+// =====================
+// ROUTE CUSTOMER (WAJIB SUDAH VERIFIKASI EMAIL)
+// =====================
+Route::middleware(['customer', 'verified'])->group(function () {
     Route::get('/rental', [RentalController::class, 'index'])->name('rental.index');
     Route::post('/rental', [RentalController::class, 'store'])->name('rental.store');
     Route::get('/transaksi', [CustomerTransaksiController::class, 'index'])->name('customer.transaksi');
+    Route::get('/transaksi', [CustomerTransaksiController::class, 'index'])->name('customer.transaksi.index');
     Route::get('/transaksi/{id}', [CustomerTransaksiController::class, 'show'])->name('customer.transaksi.show');
     Route::get('/profil', [ProfilController::class, 'index'])->name('customer.profil');
     Route::put('/profil', [ProfilController::class, 'update'])->name('customer.profil.update');

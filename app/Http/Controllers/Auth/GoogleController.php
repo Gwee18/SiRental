@@ -25,13 +25,18 @@ class GoogleController extends Controller
 
             if ($customer) {
                 $customer->update([
-                    'google_id' => $googleUser->getId(),
+                    'google_id'         => $googleUser->getId(),
+                    'foto_profil'       => $googleUser->getAvatar(),
+                    // Login lewat Google membuktikan email valid,
+                    // jadi langsung dianggap verified kalau belum.
+                    'email_verified_at' => $customer->email_verified_at ?? now(),
                 ]);
             } else {
                 $customer = Customer::create([
                     'nama_lengkap'      => $googleUser->getName(),
                     'email'             => $googleUser->getEmail(),
                     'google_id'         => $googleUser->getId(),
+                    'foto_profil'       => $googleUser->getAvatar(),
                     'email_verified_at' => now(),
                     'password'          => null,
                 ]);
@@ -42,6 +47,10 @@ class GoogleController extends Controller
             return redirect()->route('home');
 
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Google login gagal: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
             return redirect()->route('login')->withErrors([
                 'email' => 'Gagal login dengan Google, silakan coba lagi.',
             ]);

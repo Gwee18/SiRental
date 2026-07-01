@@ -20,6 +20,7 @@ class Customer extends Authenticatable implements MustVerifyEmail
         'alamat',
         'foto_ktp',
         'google_id',
+        'foto_profil',
         'email_verified_at',
     ];
 
@@ -39,5 +40,20 @@ class Customer extends Authenticatable implements MustVerifyEmail
     public function transaksi()
     {
         return $this->hasMany(Transaksi::class);
+    }
+
+    /**
+     * URL foto profil yang siap ditampilkan di navbar.
+     * Kalau customer punya foto_profil (dari Google), pakai itu.
+     * Kalau tidak (daftar manual), generate avatar dari inisial nama.
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->foto_profil) {
+            return $this->foto_profil;
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap)
+            . '&background=0F766E&color=fff&bold=true';
     }
 }
