@@ -39,8 +39,6 @@ Route::get('/auth/google/callback', [GoogleController::class, 'callback'])->name
 // =====================
 // ROUTE VERIFIKASI EMAIL CUSTOMER
 // =====================
-// Catatan: route ini sengaja TIDAK dibungkus middleware 'verified',
-// karena customer yang belum verified justru harus bisa akses halaman ini.
 Route::middleware(['customer'])->group(function () {
 
     Route::get('/verify-email', function () {
@@ -60,14 +58,16 @@ Route::middleware(['customer'])->group(function () {
 });
 
 // =====================
-// ROUTE CUSTOMER (WAJIB SUDAH VERIFIKASI EMAIL)
+// ROUTE CUSTOMER
 // =====================
 Route::middleware(['customer', 'verified'])->group(function () {
     Route::get('/rental', [RentalController::class, 'index'])->name('rental.index');
     Route::post('/rental', [RentalController::class, 'store'])->name('rental.store');
+
     Route::get('/transaksi', [CustomerTransaksiController::class, 'index'])->name('customer.transaksi');
     Route::get('/transaksi', [CustomerTransaksiController::class, 'index'])->name('customer.transaksi.index');
     Route::get('/transaksi/{id}', [CustomerTransaksiController::class, 'show'])->name('customer.transaksi.show');
+
     Route::get('/profil', [ProfilController::class, 'index'])->name('customer.profil');
     Route::put('/profil', [ProfilController::class, 'update'])->name('customer.profil.update');
 });
@@ -85,12 +85,21 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Protected Admin Routes
     Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
         Route::resource('/alat', AlatController::class);
+
         Route::resource('/transaksi', AdminTransaksiController::class);
         Route::post('/transaksi/{id}/approve', [AdminTransaksiController::class, 'approve'])->name('transaksi.approve');
         Route::post('/transaksi/{id}/tolak', [AdminTransaksiController::class, 'tolak'])->name('transaksi.tolak');
         Route::post('/transaksi/{id}/selesai', [AdminTransaksiController::class, 'selesai'])->name('transaksi.selesai');
+
+        // Verifikasi Pengembalian
+        Route::get('/pengembalian', [AdminTransaksiController::class, 'pengembalianIndex'])->name('pengembalian.index');
+        Route::post('/pengembalian/cari', [AdminTransaksiController::class, 'cariPengembalian'])->name('pengembalian.cari');
+        Route::get('/pengembalian/{kode}', [AdminTransaksiController::class, 'detailPengembalian'])->name('pengembalian.detail');
+
         Route::resource('/pelanggan', PelangganController::class);
+
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
     });
