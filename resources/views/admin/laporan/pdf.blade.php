@@ -25,7 +25,7 @@
         .header {
             background: #085041;
             color: #ffffff;
-            padding: 24px 44px 22px 44px;
+            padding: 24px 44px 22px;
         }
 
         .header h1 {
@@ -38,7 +38,7 @@
         }
 
         .content {
-            padding: 24px 44px 36px 44px;
+            padding: 24px 44px 36px;
         }
 
         .period {
@@ -51,15 +51,23 @@
             font-weight: bold;
         }
 
+        .period-note {
+            display: block;
+            margin-top: 4px;
+            color: #4b766d;
+            font-size: 9px;
+            font-weight: normal;
+        }
+
         .summary-table {
             width: 100%;
             border-collapse: separate;
-            border-spacing: 12px 0;
+            border-spacing: 8px 0;
             margin-bottom: 26px;
         }
 
         .summary-table td {
-            width: 33.33%;
+            width: 25%;
             padding: 0;
             vertical-align: top;
         }
@@ -67,20 +75,20 @@
         .summary-card {
             border: 1px solid #e5e7eb;
             border-radius: 8px;
-            padding: 10px 14px;
-            min-height: 48px;
+            padding: 10px 12px;
+            min-height: 52px;
         }
 
         .summary-card .label {
-            font-size: 9px;
+            font-size: 8px;
             color: #9ca3af;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             margin-bottom: 5px;
         }
 
         .summary-card .value {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #00372c;
         }
@@ -119,19 +127,19 @@
         }
 
         .data-table th {
-            padding: 10px 12px;
+            padding: 9px 8px;
             text-align: left;
-            font-size: 10px;
+            font-size: 8px;
             color: #9ca3af;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.04em;
             border-bottom: 2px solid #e5e7eb;
         }
 
         .data-table td {
-            padding: 10px 12px;
+            padding: 9px 8px;
             border-bottom: 1px solid #f3f4f6;
-            font-size: 11px;
+            font-size: 9px;
         }
 
         .data-table tbody tr:last-child td {
@@ -149,6 +157,10 @@
 
         .text-right {
             text-align: right;
+        }
+
+        .nowrap {
+            white-space: nowrap;
         }
 
         .empty-row {
@@ -175,36 +187,49 @@
 
     <div class="content">
         <div class="period">
-            Periode:
-            {{ \Carbon\Carbon::createFromDate($tahun, (int) $bulan, 1)->translatedFormat('F') }}
+            Periode Pelunasan:
+            {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F') }}
             {{ $tahun }}
             &nbsp;&bull;&nbsp;
             Dicetak: {{ now()->translatedFormat('d F Y, H:i') }} WIB
+
+            <span class="period-note">
+                Pendapatan dihitung dari nominal pembayaran yang benar-benar sudah diterima.
+            </span>
         </div>
 
         <table class="summary-table">
             <tr>
                 <td>
                     <div class="summary-card">
-                        <div class="label">Total Transaksi</div>
+                        <div class="label">Transaksi Lunas</div>
                         <div class="value">{{ $transaksi->count() }}</div>
                     </div>
                 </td>
 
                 <td>
-                    <div class="summary-card green">
-                        <div class="label">Total Pendapatan</div>
+                    <div class="summary-card">
+                        <div class="label">Pendapatan Sewa</div>
                         <div class="value">
-                            Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
+                            Rp {{ number_format($totalSewa, 0, ',', '.') }}
                         </div>
                     </div>
                 </td>
 
                 <td>
                     <div class="summary-card red">
-                        <div class="label">Total Denda</div>
+                        <div class="label">Denda Terkumpul</div>
                         <div class="value">
                             Rp {{ number_format($totalDenda, 0, ',', '.') }}
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="summary-card green">
+                        <div class="label">Total Diterima</div>
+                        <div class="value">
+                            Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                         </div>
                     </div>
                 </td>
@@ -216,53 +241,61 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Kode Transaksi</th>
+                        <th>Kode</th>
                         <th>Pelanggan</th>
-                        <th>Tanggal</th>
+                        <th>Tanggal Lunas</th>
                         <th class="text-right">Total Sewa</th>
                         <th class="text-right">Denda</th>
-                        <th class="text-right">Grand Total</th>
+                        <th class="text-right">Total Dibayar</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    @forelse ($transaksi as $i => $trx)
+                    @forelse($transaksi as $i => $trx)
+                        @php
+                            $tanggalLunas = $trx->denda_dibayar_pada
+                                ?? $trx->dibayar_pada
+                                ?? $trx->updated_at;
+                        @endphp
+
                         <tr>
                             <td>{{ $i + 1 }}</td>
-                            <td>{{ $trx->kode_transaksi }}</td>
+                            <td class="nowrap">{{ $trx->kode_transaksi }}</td>
                             <td>{{ $trx->customer->nama_lengkap ?? '-' }}</td>
-                            <td>{{ $trx->created_at->translatedFormat('d M Y') }}</td>
-                            <td class="text-right">
+                            <td class="nowrap">
+                                {{ $tanggalLunas->translatedFormat('d M Y, H:i') }}
+                            </td>
+                            <td class="text-right nowrap">
                                 Rp {{ number_format($trx->total_harga, 0, ',', '.') }}
                             </td>
-                            <td class="text-right">
+                            <td class="text-right nowrap">
                                 {{ $trx->total_denda > 0 ? 'Rp ' . number_format($trx->total_denda, 0, ',', '.') : '-' }}
                             </td>
-                            <td class="text-right">
-                                Rp {{ number_format($trx->total_harga + $trx->total_denda, 0, ',', '.') }}
+                            <td class="text-right nowrap">
+                                Rp {{ number_format($trx->total_dibayar, 0, ',', '.') }}
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="7" class="empty-row">
-                                Tidak ada transaksi selesai di periode ini.
+                                Tidak ada transaksi lunas pada periode ini.
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
 
-                @if ($transaksi->isNotEmpty())
+                @if($transaksi->isNotEmpty())
                     <tfoot>
                         <tr>
                             <td colspan="4">TOTAL</td>
-                            <td class="text-right">
-                                Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
+                            <td class="text-right nowrap">
+                                Rp {{ number_format($totalSewa, 0, ',', '.') }}
                             </td>
-                            <td class="text-right">
+                            <td class="text-right nowrap">
                                 Rp {{ number_format($totalDenda, 0, ',', '.') }}
                             </td>
-                            <td class="text-right">
-                                Rp {{ number_format($totalPendapatan + $totalDenda, 0, ',', '.') }}
+                            <td class="text-right nowrap">
+                                Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                             </td>
                         </tr>
                     </tfoot>
@@ -271,7 +304,7 @@
         </div>
 
         <div class="footer">
-            Dokumen ini digenerate otomatis oleh sistem SiRental &bull;
+            Dokumen ini dibuat otomatis oleh sistem SiRental &bull;
             © {{ now()->year }} SiRental. All rights reserved.
         </div>
     </div>

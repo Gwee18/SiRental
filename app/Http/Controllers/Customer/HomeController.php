@@ -10,10 +10,18 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $alat            = Alat::where('stok_tersedia', '>', 0)->latest()->take(8)->get();
-        $alatByKategori  = Alat::all()->groupBy('kategori');
-        $totalAlat       = Alat::where('stok_tersedia', '>', 0)->count();
-        $totalCustomer   = Customer::count();
+        $alat = Alat::tersedia()
+            ->latest()
+            ->take(4)
+            ->get();
+
+        $alatByKategori = Alat::aktif()
+            ->latest()
+            ->get()
+            ->groupBy('kategori');
+
+        $totalAlat = Alat::tersedia()->count();
+        $totalCustomer = Customer::count();
 
         return view('customer.home', compact(
             'alat',
@@ -21,5 +29,14 @@ class HomeController extends Controller
             'totalAlat',
             'totalCustomer'
         ));
+    }
+
+    public function katalog()
+    {
+        $alat = Alat::tersedia()
+            ->latest()
+            ->paginate(12);
+
+        return view('customer.katalog.index', compact('alat'));
     }
 }

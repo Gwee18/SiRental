@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
-class Customer extends Authenticatable implements MustVerifyEmail
+class Customer extends Authenticatable
 {
     use Notifiable;
 
@@ -37,23 +39,50 @@ class Customer extends Authenticatable implements MustVerifyEmail
         ];
     }
 
+    protected function email(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Str::lower(
+                trim((string) $value)
+            ),
+        );
+    }
+
+    protected function googleId(): Attribute
+    {
+        return Attribute::make(
+            set: function ($value) {
+                $googleId = trim((string) ($value ?? ''));
+
+                return $googleId !== ''
+                    ? $googleId
+                    : null;
+            },
+        );
+    }
+
     public function transaksi()
     {
         return $this->hasMany(Transaksi::class);
     }
 
-    /**
-     * URL foto profil yang siap ditampilkan di navbar.
-     * Kalau customer punya foto_profil (dari Google), pakai itu.
-     * Kalau tidak (daftar manual), generate avatar dari inisial nama.
-     */
     public function getAvatarUrlAttribute(): string
     {
         if ($this->foto_profil) {
-            return $this->foto_profil;
+            if (
+                Str::startsWith(
+                    $this->foto_profil,
+                    ['http://', 'https://']
+                )
+            ) {
+                return $this->foto_profil;
+            }
+
+            return Storage::url($this->foto_profil);
         }
 
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->nama_lengkap)
+        return 'https://ui-avatars.com/api/?name='
+            . urlencode($this->nama_lengkap)
             . '&background=0F766E&color=fff&bold=true';
     }
 }

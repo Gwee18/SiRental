@@ -1,24 +1,63 @@
 *.log
 .DS_Store
+Thumbs.db
+
+# Environment dan kredensial
 .env
+.env.*
+!.env.example
 .env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
 /auth.json
+
+# Dependency
 /node_modules
+/vendor
+
+# Hasil build
 /public/build
 /public/hot
 /public/storage
+
+# Cache dan file sementara Laravel
 /storage/*.key
 /storage/pail
-/vendor
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Upload customer yang tidak boleh masuk GitHub
+/storage/app/public/foto-barang/*
+/storage/app/public/foto-ktp/*
+/storage/app/public/foto-profil/*
+
+# Pertahankan file .gitignore dalam folder upload
+!/storage/app/public/foto-barang/.gitignore
+!/storage/app/public/foto-ktp/.gitignore
+!/storage/app/public/foto-profil/.gitignore
+
+# Database export berpotensi berisi data pribadi
+*.sql
+
+# Testing
+/.phpunit.cache
+.phpunit.result.cache
+
+# Editor
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+
+# Development environment
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# Log package manager
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

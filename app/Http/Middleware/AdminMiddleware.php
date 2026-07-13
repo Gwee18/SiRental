@@ -8,10 +8,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
 {
-    public function handle(Request $request, Closure $next): Response
-    {
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
         if (!auth('admin')->check()) {
-            return redirect()->route('admin.login');
+            if ($request->expectsJson()) {
+                abort(401, 'Unauthenticated.');
+            }
+
+            return redirect()->guest(
+                route('admin.login')
+            );
         }
 
         return $next($request);

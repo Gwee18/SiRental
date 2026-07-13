@@ -3,17 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Transaksi;
+use App\Models\Alat;
 use App\Models\Denda;
+use App\Models\Transaksi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use RuntimeException;
 
 class TransaksiController extends Controller
 {
+    private const JAM_TOLERANSI = 2;
+    private const PERSENTASE_DENDA = 1.00;
+
     public function index()
     {
-        $transaksi = Transaksi::with('customer', 'detailTransaksi.alat')
+        $transaksi = Transaksi::with([
+                'customer',
+                'detailTransaksi',
+            ])
+            ->withSum('detailTransaksi as jumlah_item', 'jumlah')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -22,7 +31,11 @@ class TransaksiController extends Controller
 
     public function show($id)
     {
-        $transaksi = Transaksi::with('customer', 'detailTransaksi.alat', 'denda')
+        $transaksi = Transaksi::with([
+                'customer',
+                'detailTransaksi.alat',
+                'denda',
+            ])
             ->findOrFail($id);
 
         return view('admin.transaksi.detail', compact('transaksi'));
@@ -30,41 +43,95 @@ class TransaksiController extends Controller
 
     public function approve($id)
     {
-        $transaksi = Transaksi::with('detailTransaksi.alat')->findOrFail($id);
+        try {
+            DB::transaction(function () use ($id) {
+                $transaksi = Transaksi::with('detailTransaksi')
+                    ->lockForUpdate()
+                    ->findOrFail($id);
 
-        if ($transaksi->status !== 'menunggu') {
-            return redirect()->route('admin.transaksi.show', $id)
-                ->with('error', 'Pesanan ini tidak bisa dikonfirmasi karena statusnya bukan menunggu.');
+                if ($transaksi->status !== 'menunggu') {
+                    throw new RuntimeException(
+                        'Pesanan ini tidak bisa dikonfirmasi karena statusnya bukan menunggu.'
+                    );
+                }
+
+                if ($transaksi->detailTransaksi->isEmpty()) {
+                    throw new RuntimeException(
+                        'Pesanan tidak memiliki barang yang dapat dikonfirmasi.'
+                    );
+                }
+
+                $alatTerkunci = [];
+
+                foreach ($transaksi->detailTransaksi as $detail) {
+                    $alat = Alat::query()
+                        ->lockForUpdate()
+                        ->find($detail->alat_id);
+
+                    if (!$alat) {
+                        throw new RuntimeException(
+                            'Ada alat yang tidak ditemukan pada transaksi ini.'
+                        );
+                    }
+
+                    if (!$alat->is_active) {
+                        throw new RuntimeException(
+                            'Pesanan tidak dapat dikonfirmasi karena ' .
+                            $alat->nama_alat .
+                            ' sedang dinonaktifkan.'
+                        );
+                    }
+
+                    if ($alat->stok_tersedia < $detail->jumlah) {
+                        throw new RuntimeException(
+                            'Stok ' . $alat->nama_alat
+                            . ' tidak mencukupi untuk dikonfirmasi.'
+                        );
+                    }
+
+                    $alatTerkunci[$detail->id] = $alat;
+                }
+
+                $lamaSewa = max(
+                    (int) ($transaksi->detailTransaksi->first()->lama_sewa ?? 1),
+                    1
+                );
+
+                $tanggalMulai = now();
+                $tanggalSelesai = $tanggalMulai
+                    ->copy()
+                    ->addHours($lamaSewa * 24);
+
+                foreach ($transaksi->detailTransaksi as $detail) {
+                    $alat = $alatTerkunci[$detail->id];
+
+                    $alat->update([
+                        'stok_tersedia' => $alat->stok_tersedia - $detail->jumlah,
+                    ]);
+                }
+
+                $transaksi->update([
+                    'status' => 'aktif',
+                    'status_pembayaran' => Transaksi::PEMBAYARAN_SEWA_LUNAS,
+                    'total_dibayar' => (int) $transaksi->total_harga,
+                    'dibayar_pada' => $tanggalMulai,
+                    'denda_dibayar_pada' => null,
+                    'tanggal_mulai' => $tanggalMulai,
+                    'tanggal_selesai' => $tanggalSelesai,
+                ]);
+            });
+        } catch (RuntimeException $exception) {
+            return redirect()
+                ->route('admin.transaksi.show', $id)
+                ->with('error', $exception->getMessage());
         }
 
-        foreach ($transaksi->detailTransaksi as $detail) {
-            if (!$detail->alat) {
-                return redirect()->route('admin.transaksi.show', $id)
-                    ->with('error', 'Ada alat yang tidak ditemukan pada transaksi ini.');
-            }
-
-            if ($detail->alat->stok_tersedia < $detail->jumlah) {
-                return redirect()->route('admin.transaksi.show', $id)
-                    ->with('error', 'Stok ' . $detail->alat->nama_alat . ' tidak mencukupi untuk dikonfirmasi.');
-            }
-        }
-
-        DB::transaction(function () use ($transaksi) {
-            $lamaSewa = $transaksi->detailTransaksi->first()->lama_sewa ?? 1;
-
-            foreach ($transaksi->detailTransaksi as $detail) {
-                $detail->alat->decrement('stok_tersedia', $detail->jumlah);
-            }
-
-            $transaksi->update([
-                'status'          => 'aktif',
-                'tanggal_mulai'   => now()->toDateString(),
-                'tanggal_selesai' => now()->addDays($lamaSewa)->toDateString(),
-            ]);
-        });
-
-        return redirect()->route('admin.transaksi.show', $id)
-            ->with('success', 'Pesanan berhasil dikonfirmasi dan stok alat sudah dikurangi.');
+        return redirect()
+            ->route('admin.transaksi.show', $id)
+            ->with(
+                'success',
+                'Pembayaran sewa berhasil dicatat, pesanan dikonfirmasi, dan stok alat sudah dikurangi.'
+            );
     }
 
     public function tolak($id)
@@ -72,88 +139,168 @@ class TransaksiController extends Controller
         $transaksi = Transaksi::findOrFail($id);
 
         if ($transaksi->status !== 'menunggu') {
-            return redirect()->route('admin.transaksi.show', $id)
-                ->with('error', 'Pesanan hanya bisa ditolak saat status masih menunggu.');
+            return redirect()
+                ->route('admin.transaksi.show', $id)
+                ->with(
+                    'error',
+                    'Pesanan hanya bisa ditolak saat status masih menunggu.'
+                );
         }
 
         $transaksi->update([
             'status' => 'ditolak',
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'total_dibayar' => 0,
+            'dibayar_pada' => null,
+            'denda_dibayar_pada' => null,
         ]);
 
-        return redirect()->route('admin.transaksi.show', $id)
+        return redirect()
+            ->route('admin.transaksi.show', $id)
             ->with('success', 'Pesanan berhasil ditolak.');
     }
 
     public function selesai(Request $request, $id)
     {
-        $transaksi = Transaksi::with('detailTransaksi.alat', 'denda')->findOrFail($id);
+        $source = $request->input('source');
 
-        if ($transaksi->status !== 'aktif') {
-            return redirect()->back()
-                ->with('error', 'Transaksi hanya bisa diselesaikan jika statusnya aktif.');
-        }
+        $checkedBarang = collect(
+            $request->input('barang_dikembalikan', [])
+        )
+            ->map(fn ($detailId) => (int) $detailId)
+            ->sort()
+            ->values()
+            ->toArray();
 
-        if ($request->input('source') === 'pengembalian') {
-            $checkedBarang = collect($request->input('barang_dikembalikan', []))
-                ->map(fn ($id) => (int) $id)
-                ->sort()
-                ->values()
-                ->toArray();
+        $pembayaranDendaDikonfirmasi = $request->boolean(
+            'konfirmasi_pembayaran_denda'
+        );
 
-            $semuaBarang = $transaksi->detailTransaksi
-                ->pluck('id')
-                ->map(fn ($id) => (int) $id)
-                ->sort()
-                ->values()
-                ->toArray();
+        try {
+            DB::transaction(function () use (
+                $id,
+                $source,
+                $checkedBarang,
+                $pembayaranDendaDikonfirmasi
+            ) {
+                $transaksi = Transaksi::with([
+                        'detailTransaksi',
+                        'denda',
+                    ])
+                    ->lockForUpdate()
+                    ->findOrFail($id);
 
-            if ($checkedBarang !== $semuaBarang) {
-                return redirect()->back()
-                    ->with('error', 'Semua barang harus dicentang sebelum transaksi diselesaikan.');
-            }
-        }
-
-        DB::transaction(function () use ($transaksi) {
-            $totalDenda = 0;
-
-            if ($transaksi->tanggal_selesai) {
-                $tanggalSelesai = Carbon::parse($transaksi->tanggal_selesai)->startOfDay();
-                $hariIni = now()->startOfDay();
-
-                if ($hariIni->greaterThan($tanggalSelesai)) {
-                    $hariTerlambat = $tanggalSelesai->diffInDays($hariIni);
-                    $dendaPerHari = $transaksi->total_harga * 0.1;
-                    $totalDenda = $hariTerlambat * $dendaPerHari;
-
-                    Denda::create([
-                        'transaksi_id'   => $transaksi->id,
-                        'hari_terlambat' => $hariTerlambat,
-                        'denda_per_hari' => $dendaPerHari,
-                        'total_denda'    => $totalDenda,
-                        'keterangan'     => "Terlambat {$hariTerlambat} hari",
-                    ]);
+                if ($transaksi->status !== 'aktif') {
+                    throw new RuntimeException(
+                        'Transaksi hanya bisa diselesaikan jika statusnya aktif.'
+                    );
                 }
-            }
 
-            foreach ($transaksi->detailTransaksi as $detail) {
-                if ($detail->alat) {
-                    $detail->alat->increment('stok_tersedia', $detail->jumlah);
+                if (
+                    $transaksi->status_pembayaran
+                    !== Transaksi::PEMBAYARAN_SEWA_LUNAS
+                    || (int) $transaksi->total_dibayar < (int) $transaksi->total_harga
+                ) {
+                    throw new RuntimeException(
+                        'Pembayaran sewa belum tercatat lunas. Periksa data pembayaran sebelum menyelesaikan transaksi.'
+                    );
                 }
-            }
 
-            $transaksi->update([
-                'status'      => 'selesai',
-                'total_denda' => $totalDenda,
-            ]);
-        });
+                if ($source === 'pengembalian') {
+                    $semuaBarang = $transaksi->detailTransaksi
+                        ->pluck('id')
+                        ->map(fn ($detailId) => (int) $detailId)
+                        ->sort()
+                        ->values()
+                        ->toArray();
 
-        if ($request->input('source') === 'pengembalian') {
-            return redirect()->route('admin.pengembalian.index')
-                ->with('success', 'Pengembalian berhasil diverifikasi. Transaksi sudah selesai dan stok barang sudah dikembalikan.');
+                    if ($checkedBarang !== $semuaBarang) {
+                        throw new RuntimeException(
+                            'Semua barang harus dicentang sebelum transaksi diselesaikan.'
+                        );
+                    }
+                }
+
+                $perhitunganDenda = $this->hitungDenda($transaksi);
+
+                $hariTerlambat = $perhitunganDenda['hariTerlambat'];
+                $dendaPerHari = $perhitunganDenda['dendaPerHari'];
+                $totalDenda = $perhitunganDenda['estimasiDenda'];
+
+                if ($totalDenda > 0) {
+                    if (
+                        $source !== 'pengembalian'
+                        || !$pembayaranDendaDikonfirmasi
+                    ) {
+                        throw new RuntimeException(
+                            'Konfirmasi bahwa pembayaran denda sudah diterima sebelum transaksi diselesaikan.'
+                        );
+                    }
+
+                    Denda::updateOrCreate(
+                        [
+                            'transaksi_id' => $transaksi->id,
+                        ],
+                        [
+                            'hari_terlambat' => $hariTerlambat,
+                            'denda_per_hari' => $dendaPerHari,
+                            'total_denda' => $totalDenda,
+                            'keterangan' =>
+                                "Terlambat {$hariTerlambat} periode setelah masa toleransi",
+                        ]
+                    );
+                } elseif ($transaksi->denda) {
+                    $transaksi->denda->delete();
+                }
+
+                foreach ($transaksi->detailTransaksi as $detail) {
+                    $alat = Alat::query()
+                        ->lockForUpdate()
+                        ->find($detail->alat_id);
+
+                    if ($alat) {
+                        $alat->update([
+                            'stok_tersedia' => $alat->stok_tersedia + $detail->jumlah,
+                        ]);
+                    }
+                }
+
+                $waktuSelesai = now();
+                $totalPembayaran = (int) $transaksi->total_harga + $totalDenda;
+
+                $transaksi->update([
+                    'status' => 'selesai',
+                    'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,
+                    'total_denda' => $totalDenda,
+                    'total_dibayar' => $totalPembayaran,
+                    'dibayar_pada' => $transaksi->dibayar_pada ?: $waktuSelesai,
+                    'denda_dibayar_pada' => $totalDenda > 0
+                        ? $waktuSelesai
+                        : null,
+                ]);
+            });
+        } catch (RuntimeException $exception) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $exception->getMessage());
         }
 
-        return redirect()->route('admin.transaksi.show', $id)
-            ->with('success', 'Transaksi berhasil diselesaikan dan stok alat sudah dikembalikan.');
+        if ($source === 'pengembalian') {
+            return redirect()
+                ->route('admin.pengembalian.index')
+                ->with(
+                    'success',
+                    'Pengembalian berhasil diverifikasi, pembayaran sudah dilunasi, transaksi selesai, dan stok barang dikembalikan.'
+                );
+        }
+
+        return redirect()
+            ->route('admin.transaksi.show', $id)
+            ->with(
+                'success',
+                'Transaksi berhasil diselesaikan dan seluruh pembayaran sudah tercatat lunas.'
+            );
     }
 
     public function pengembalianIndex()
@@ -169,65 +316,197 @@ class TransaksiController extends Controller
 
         $kode = strtoupper(trim($request->kode_transaksi));
 
-        $transaksi = Transaksi::where('kode_transaksi', $kode)->first();
+        $transaksi = Transaksi::where(
+            'kode_transaksi',
+            $kode
+        )->first();
 
         if (!$transaksi) {
-            return redirect()->back()
-                ->withErrors(['kode_transaksi' => 'Transaksi dengan kode tersebut tidak ditemukan.'])
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'kode_transaksi' =>
+                        'Transaksi dengan kode tersebut tidak ditemukan.',
+                ])
                 ->withInput();
         }
 
         if ($transaksi->status === 'menunggu') {
-            return redirect()->back()
-                ->withErrors(['kode_transaksi' => 'Transaksi ini belum aktif. Pengembalian hanya bisa dilakukan setelah transaksi dikonfirmasi admin.'])
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'kode_transaksi' =>
+                        'Transaksi ini belum aktif. Pengembalian hanya bisa dilakukan setelah transaksi dikonfirmasi admin.',
+                ])
                 ->withInput();
         }
 
         if ($transaksi->status === 'ditolak') {
-            return redirect()->back()
-                ->withErrors(['kode_transaksi' => 'Transaksi ini sudah ditolak dan tidak bisa diproses pengembaliannya.'])
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'kode_transaksi' =>
+                        'Transaksi ini sudah ditolak dan tidak bisa diproses pengembaliannya.',
+                ])
                 ->withInput();
         }
 
         if ($transaksi->status === 'selesai') {
-            return redirect()->back()
-                ->withErrors(['kode_transaksi' => 'Transaksi ini sudah selesai.'])
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'kode_transaksi' =>
+                        'Transaksi ini sudah selesai.',
+                ])
                 ->withInput();
         }
 
-        return redirect()->route('admin.pengembalian.detail', $transaksi->kode_transaksi);
+        return redirect()->route(
+            'admin.pengembalian.detail',
+            $transaksi->kode_transaksi
+        );
     }
 
     public function detailPengembalian($kode)
     {
-        $transaksi = Transaksi::with('customer', 'detailTransaksi.alat', 'denda')
+        $transaksi = Transaksi::with([
+                'customer',
+                'detailTransaksi.alat',
+                'denda',
+            ])
             ->where('kode_transaksi', strtoupper($kode))
             ->firstOrFail();
 
         if ($transaksi->status !== 'aktif') {
-            return redirect()->route('admin.pengembalian.index')
-                ->with('error', 'Pengembalian hanya bisa diproses untuk transaksi yang sedang aktif.');
+            return redirect()
+                ->route('admin.pengembalian.index')
+                ->with(
+                    'error',
+                    'Pengembalian hanya bisa diproses untuk transaksi yang sedang aktif.'
+                );
         }
+
+        if (
+            !$transaksi->tanggal_mulai
+            || !$transaksi->tanggal_selesai
+        ) {
+            return redirect()
+                ->route('admin.pengembalian.index')
+                ->with(
+                    'error',
+                    'Waktu mulai atau batas pengembalian transaksi belum tersedia.'
+                );
+        }
+
+        $sekarang = now();
+
+        $batasKembali = Carbon::parse(
+            $transaksi->tanggal_selesai
+        );
+
+        $batasToleransi = $batasKembali
+            ->copy()
+            ->addHours(self::JAM_TOLERANSI);
+
+        $statusWaktu = 'sewa';
+        $countdownTarget = $batasKembali;
+
+        if (
+            $sekarang->greaterThanOrEqualTo($batasKembali)
+            && $sekarang->lessThanOrEqualTo($batasToleransi)
+        ) {
+            $statusWaktu = 'toleransi';
+            $countdownTarget = $batasToleransi;
+        } elseif ($sekarang->greaterThan($batasToleransi)) {
+            $statusWaktu = 'terlambat';
+            $countdownTarget = null;
+        }
+
+        $perhitunganDenda = $this->hitungDenda($transaksi);
+
+        return view(
+            'admin.pengembalian.detail',
+            [
+                'transaksi' => $transaksi,
+                'statusWaktu' => $statusWaktu,
+                'countdownTarget' => $countdownTarget,
+                'batasKembali' => $batasKembali,
+                'batasToleransi' => $batasToleransi,
+                'jamToleransi' => self::JAM_TOLERANSI,
+                'totalSewaHarian' =>
+                    $perhitunganDenda['totalSewaHarian'],
+                'dendaPerHari' =>
+                    $perhitunganDenda['dendaPerHari'],
+                'hariTerlambat' =>
+                    $perhitunganDenda['hariTerlambat'],
+                'menitTerlambat' =>
+                    $perhitunganDenda['menitTerlambat'],
+                'estimasiDenda' =>
+                    $perhitunganDenda['estimasiDenda'],
+            ]
+        );
+    }
+
+    private function hitungDenda(Transaksi $transaksi): array
+    {
+        $totalSewaHarian = $transaksi->detailTransaksi
+            ->sum(function ($detail) {
+                return (float) $detail->harga_satuan
+                    * (int) $detail->jumlah;
+            });
+
+        $dendaPerHari = (int) round(
+            $totalSewaHarian * self::PERSENTASE_DENDA
+        );
 
         $hariTerlambat = 0;
+        $menitTerlambat = 0;
         $estimasiDenda = 0;
-        $dendaPerHari = $transaksi->total_harga * 0.1;
 
-        if ($transaksi->tanggal_selesai) {
-            $tanggalSelesai = Carbon::parse($transaksi->tanggal_selesai)->startOfDay();
-            $hariIni = now()->startOfDay();
-
-            if ($hariIni->greaterThan($tanggalSelesai)) {
-                $hariTerlambat = $tanggalSelesai->diffInDays($hariIni);
-                $estimasiDenda = $hariTerlambat * $dendaPerHari;
-            }
+        if (!$transaksi->tanggal_selesai) {
+            return [
+                'totalSewaHarian' => $totalSewaHarian,
+                'dendaPerHari' => $dendaPerHari,
+                'hariTerlambat' => $hariTerlambat,
+                'menitTerlambat' => $menitTerlambat,
+                'estimasiDenda' => $estimasiDenda,
+            ];
         }
 
-        return view('admin.pengembalian.detail', compact(
-            'transaksi',
-            'hariTerlambat',
-            'estimasiDenda',
-            'dendaPerHari'
-        ));
+        $batasKembali = Carbon::parse(
+            $transaksi->tanggal_selesai
+        );
+
+        $batasToleransi = $batasKembali
+            ->copy()
+            ->addHours(self::JAM_TOLERANSI);
+
+        $sekarang = now();
+
+        if ($sekarang->greaterThan($batasToleransi)) {
+            $detikTerlambat = (int) floor(
+                $batasToleransi->diffInSeconds($sekarang)
+            );
+
+            $menitTerlambat = (int) floor(
+                $detikTerlambat / 60
+            );
+
+            $hariTerlambat = max(
+                1,
+                (int) ceil($detikTerlambat / 86400)
+            );
+
+            $estimasiDenda = $hariTerlambat
+                * $dendaPerHari;
+        }
+
+        return [
+            'totalSewaHarian' => $totalSewaHarian,
+            'dendaPerHari' => $dendaPerHari,
+            'hariTerlambat' => $hariTerlambat,
+            'menitTerlambat' => $menitTerlambat,
+            'estimasiDenda' => $estimasiDenda,
+        ];
     }
 }

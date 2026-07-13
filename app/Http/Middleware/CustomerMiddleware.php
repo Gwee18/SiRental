@@ -8,10 +8,18 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CustomerMiddleware
 {
-    public function handle(Request $request, Closure $next): Response
-    {
+    public function handle(
+        Request $request,
+        Closure $next
+    ): Response {
         if (!auth('web')->check()) {
-            return redirect()->route('login');
+            if ($request->expectsJson()) {
+                abort(401, 'Unauthenticated.');
+            }
+
+            return redirect()->guest(
+                route('login')
+            );
         }
 
         return $next($request);

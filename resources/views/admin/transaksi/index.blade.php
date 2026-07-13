@@ -37,18 +37,23 @@
                             <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider">
                                 Kode
                             </th>
+
                             <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider">
                                 Pelanggan
                             </th>
+
                             <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider">
-                                Alat
+                                Jumlah Item
                             </th>
+
                             <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider">
                                 Status
                             </th>
+
                             <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider text-right">
                                 Total
                             </th>
+
                             <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider text-center">
                                 Aksi
                             </th>
@@ -58,13 +63,15 @@
                     <tbody class="divide-y divide-gray-100">
                         @foreach($transaksi as $trx)
                             @php
-                                $statusStyle = match($trx->status) {
-                                    'menunggu' => 'bg-yellow-50 text-yellow-600',
-                                    'disetujui', 'aktif' => 'bg-[#e8f5f0] text-[#085041]',
-                                    'ditolak' => 'bg-red-50 text-red-500',
-                                    'selesai' => 'bg-gray-100 text-gray-500',
-                                    default => 'bg-gray-100 text-gray-500',
+                                $statusTextColor = match($trx->status) {
+                                    'menunggu' => 'text-yellow-600',
+                                    'disetujui', 'aktif' => 'text-[#085041]',
+                                    'ditolak' => 'text-red-500',
+                                    'selesai' => 'text-gray-500',
+                                    default => 'text-gray-500',
                                 };
+
+                                $totalItem = (int) ($trx->jumlah_item ?? 0);
                             @endphp
 
                             <tr class="hover:bg-gray-50 transition-colors">
@@ -76,18 +83,20 @@
                                     {{ $trx->customer->nama_lengkap ?? '-' }}
                                 </td>
 
-                                <td class="px-6 py-4 text-gray-600">
-                                    {{ $trx->detailTransaksi->first()->alat->nama_alat ?? '-' }}
-
-                                    @if($trx->detailTransaksi->count() > 1)
-                                        <span class="text-gray-400 text-xs">
-                                            +{{ $trx->detailTransaksi->count() - 1 }} lainnya
+                                <td class="px-6 py-4">
+                                    @if($totalItem > 0)
+                                        <span class="font-semibold text-[#00372c]">
+                                            {{ $totalItem }} item
+                                        </span>
+                                    @else
+                                        <span class="text-gray-400">
+                                            -
                                         </span>
                                     @endif
                                 </td>
 
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex text-xs font-semibold px-3 py-1 rounded-full {{ $statusStyle }}">
+                                    <span class="text-sm font-semibold {{ $statusTextColor }}">
                                         {{ ucfirst($trx->status) }}
                                     </span>
                                 </td>
@@ -97,12 +106,15 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-center">
-                                    <a href="{{ route('admin.transaksi.show', $trx->id) }}"
-                                       class="inline-flex items-center gap-1.5 text-[#085041] hover:text-[#00372c] text-xs font-semibold px-3 py-1.5 bg-[#e8f5f0] hover:bg-[#d8eee5] rounded-lg transition-colors">
+                                    <a
+                                        href="{{ route('admin.transaksi.show', $trx->id) }}"
+                                        class="inline-flex items-center justify-center gap-1.5 text-sm font-semibold text-[#085041] hover:text-[#00372c] transition-colors"
+                                    >
                                         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
                                             <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/>
                                             <circle cx="12" cy="12" r="3"/>
                                         </svg>
+
                                         Detail
                                     </a>
                                 </td>

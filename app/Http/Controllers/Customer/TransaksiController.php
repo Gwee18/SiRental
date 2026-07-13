@@ -10,9 +10,11 @@ class TransaksiController extends Controller
 {
     public function index()
     {
-        $transaksi = Transaksi::where('customer_id', Auth::guard('web')->id())
+        $customerId = Auth::guard('web')->id();
+
+        $transaksi = Transaksi::where('customer_id', $customerId)
             ->with('detailTransaksi.alat')
-            ->orderBy('created_at', 'desc')
+            ->latest()
             ->get();
 
         return view('customer.transaksi.index', compact('transaksi'));
@@ -20,8 +22,13 @@ class TransaksiController extends Controller
 
     public function show($id)
     {
-        $transaksi = Transaksi::where('customer_id', Auth::guard('web')->id())
-            ->with('detailTransaksi.alat', 'denda')
+        $customerId = Auth::guard('web')->id();
+
+        $transaksi = Transaksi::where('customer_id', $customerId)
+            ->with([
+                'detailTransaksi.alat',
+                'denda',
+            ])
             ->findOrFail($id);
 
         return view('customer.transaksi.show', compact('transaksi'));

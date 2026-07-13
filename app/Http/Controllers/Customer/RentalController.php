@@ -4,19 +4,25 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alat;
-use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class RentalController extends Controller
 {
     public function index()
     {
-        $alat = Alat::where('stok_tersedia', '>', 0)->get();
+        $alat = Alat::tersedia()
+            ->orderBy('nama_alat')
+            ->get();
 
         return view('customer.rental.form', compact('alat'));
     }
@@ -24,62 +30,96 @@ class RentalController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'alat_id'       => 'required|array|min:1',
-            'alat_id.*'     => 'required|exists:alat,id',
-            'jumlah'        => 'required|array|min:1',
-            'jumlah.*'      => 'required|integer|min:1',
-            'lama_sewa'     => 'required|integer|min:1|max:7',
+            'alat_id' => ['required', 'array', 'min:1'],
+            'alat_id.*' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists('alat', 'id')->where(
+                    fn ($query) => $query->where('is_active', true)
+                ),
+            ],
 
-            'foto_barang'   => 'required|array|min:1',
-            'foto_barang.*' => 'required|file|mimes:jpg,jpeg,png,webp|max:2048',
+            'jumlah' => ['required', 'array', 'min:1'],
+            'jumlah.*' => ['required', 'integer', 'min:1'],
 
-            'nama_lengkap'  => 'required|string|max:255',
-            'no_telp'       => 'required|string|max:20',
-            'alamat'        => 'required|string',
+            'lama_sewa' => ['required', 'integer', 'min:1', 'max:7'],
 
-            'foto_ktp'      => 'required|file|mimes:jpg,jpeg,png,webp|max:2048',
+            'foto_barang' => ['required', 'array', 'min:1'],
+            'foto_barang.*' => [
+                'bail',
+                'required',
+                'image',
+                'mimes:jpg,jpeg,jfif,png,webp',
+                'mimetypes:image/jpeg,image/png,image/webp',
+                'max:2048',
+                'dimensions:max_width=6000,max_height=6000',
+            ],
+
+            'nama_lengkap' => ['required', 'string', 'max:255'],
+            'no_telp' => ['required', 'string', 'max:20'],
+            'alamat' => ['required', 'string'],
+            'catatan' => ['nullable', 'string', 'max:1000'],
+
+            'foto_ktp' => [
+                'bail',
+                'required',
+                'image',
+                'mimes:jpg,jpeg,jfif,png,webp',
+                'mimetypes:image/jpeg,image/png,image/webp',
+                'max:2048',
+                'dimensions:max_width=6000,max_height=6000',
+            ],
         ], [
-            'alat_id.required'       => 'Barang rental wajib dipilih.',
-            'alat_id.array'          => 'Format pilihan barang tidak valid.',
-            'alat_id.min'            => 'Minimal pilih satu barang rental.',
-            'alat_id.*.required'     => 'Barang rental wajib dipilih.',
-            'alat_id.*.exists'       => 'Barang yang dipilih tidak ditemukan.',
+            'alat_id.required' => 'Barang rental wajib dipilih.',
+            'alat_id.array' => 'Format pilihan barang tidak valid.',
+            'alat_id.min' => 'Minimal pilih satu barang rental.',
+            'alat_id.*.required' => 'Barang rental wajib dipilih.',
+            'alat_id.*.integer' => 'Pilihan barang tidak valid.',
+            'alat_id.*.distinct' => 'Barang yang sama tidak boleh dipilih lebih dari satu kali.',
+            'alat_id.*.exists' => 'Barang tidak tersedia atau sudah dinonaktifkan.',
 
-            'jumlah.required'        => 'Jumlah barang wajib diisi.',
-            'jumlah.array'           => 'Format jumlah barang tidak valid.',
-            'jumlah.min'             => 'Minimal ada satu jumlah barang.',
-            'jumlah.*.required'      => 'Jumlah barang wajib diisi.',
-            'jumlah.*.integer'       => 'Jumlah barang harus berupa angka.',
-            'jumlah.*.min'           => 'Jumlah barang minimal 1.',
+            'jumlah.required' => 'Jumlah barang wajib diisi.',
+            'jumlah.array' => 'Format jumlah barang tidak valid.',
+            'jumlah.min' => 'Minimal ada satu jumlah barang.',
+            'jumlah.*.required' => 'Jumlah barang wajib diisi.',
+            'jumlah.*.integer' => 'Jumlah barang harus berupa angka.',
+            'jumlah.*.min' => 'Jumlah barang minimal 1.',
 
-            'lama_sewa.required'     => 'Lama sewa wajib dipilih.',
-            'lama_sewa.integer'      => 'Lama sewa tidak valid.',
-            'lama_sewa.min'          => 'Lama sewa minimal 1 hari.',
-            'lama_sewa.max'          => 'Lama sewa maksimal 7 hari.',
+            'lama_sewa.required' => 'Lama sewa wajib dipilih.',
+            'lama_sewa.integer' => 'Lama sewa tidak valid.',
+            'lama_sewa.min' => 'Lama sewa minimal 1 hari.',
+            'lama_sewa.max' => 'Lama sewa maksimal 7 hari.',
 
-            'foto_barang.required'   => 'Foto barang wajib diupload.',
-            'foto_barang.array'      => 'Format foto barang tidak valid.',
-            'foto_barang.min'        => 'Minimal upload satu foto barang.',
+            'foto_barang.required' => 'Foto barang wajib diupload.',
+            'foto_barang.array' => 'Format foto barang tidak valid.',
+            'foto_barang.min' => 'Minimal upload satu foto barang.',
             'foto_barang.*.required' => 'Foto barang wajib diupload.',
-            'foto_barang.*.file'     => 'Foto barang harus berupa file gambar.',
-            'foto_barang.*.mimes'    => 'Foto barang harus berformat JPG, JPEG, PNG, atau WEBP.',
-            'foto_barang.*.max'      => 'Ukuran foto barang maksimal 2MB.',
+            'foto_barang.*.image' => 'Foto barang harus berupa gambar yang valid.',
+            'foto_barang.*.mimes' => 'Foto barang harus berformat JPG, JPEG, JFIF, PNG, atau WEBP.',
+            'foto_barang.*.mimetypes' => 'Tipe file foto barang tidak valid.',
+            'foto_barang.*.max' => 'Ukuran foto barang maksimal 2MB.',
+            'foto_barang.*.dimensions' => 'Dimensi foto barang maksimal 6000 × 6000 piksel.',
 
-            'nama_lengkap.required'  => 'Nama lengkap wajib diisi.',
-            'nama_lengkap.string'    => 'Nama lengkap tidak valid.',
-            'nama_lengkap.max'       => 'Nama lengkap maksimal 255 karakter.',
+            'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+            'nama_lengkap.string' => 'Nama lengkap tidak valid.',
+            'nama_lengkap.max' => 'Nama lengkap maksimal 255 karakter.',
 
-            'no_telp.required'       => 'Nomor telepon wajib diisi.',
-            'no_telp.string'         => 'Nomor telepon tidak valid.',
-            'no_telp.max'            => 'Nomor telepon maksimal 20 karakter.',
+            'no_telp.required' => 'Nomor telepon wajib diisi.',
+            'no_telp.string' => 'Nomor telepon tidak valid.',
+            'no_telp.max' => 'Nomor telepon maksimal 20 karakter.',
 
-            'alamat.required'        => 'Alamat lengkap wajib diisi.',
-            'alamat.string'          => 'Alamat lengkap tidak valid.',
+            'alamat.required' => 'Alamat lengkap wajib diisi.',
+            'alamat.string' => 'Alamat lengkap tidak valid.',
 
-            'foto_ktp.required'      => 'Foto KTP wajib diupload.',
-            'foto_ktp.file'          => 'Foto KTP harus berupa file gambar.',
-            'foto_ktp.mimes'         => 'Foto KTP harus berformat JPG, JPEG, PNG, atau WEBP.',
-            'foto_ktp.max'           => 'Ukuran foto KTP maksimal 2MB.',
+            'catatan.max' => 'Catatan maksimal 1000 karakter.',
+
+            'foto_ktp.required' => 'Foto KTP wajib diupload.',
+            'foto_ktp.image' => 'Foto KTP harus berupa gambar yang valid.',
+            'foto_ktp.mimes' => 'Foto KTP harus berformat JPG, JPEG, JFIF, PNG, atau WEBP.',
+            'foto_ktp.mimetypes' => 'Tipe file foto KTP tidak valid.',
+            'foto_ktp.max' => 'Ukuran foto KTP maksimal 2MB.',
+            'foto_ktp.dimensions' => 'Dimensi foto KTP maksimal 6000 × 6000 piksel.',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -87,41 +127,67 @@ class RentalController extends Controller
                 return;
             }
 
-            $jumlahPerAlat = [];
+            $jumlahAlat = count($request->input('alat_id', []));
+            $jumlahInput = count($request->input('jumlah', []));
+            $jumlahFoto = count($request->file('foto_barang', []));
 
-            foreach ($request->alat_id as $index => $alatId) {
-                $jumlah = (int) ($request->jumlah[$index] ?? 0);
+            if (
+                $jumlahAlat !== $jumlahInput ||
+                $jumlahAlat !== $jumlahFoto
+            ) {
+                $validator->errors()->add(
+                    'alat_id',
+                    'Data barang, jumlah, dan foto barang tidak lengkap.'
+                );
 
-                if (!isset($jumlahPerAlat[$alatId])) {
-                    $jumlahPerAlat[$alatId] = 0;
-                }
-
-                $jumlahPerAlat[$alatId] += $jumlah;
+                return;
             }
 
-            foreach ($jumlahPerAlat as $alatId => $jumlahDiminta) {
-                $alat = Alat::find($alatId);
+            $alat = Alat::whereIn(
+                    'id',
+                    $request->input('alat_id', [])
+                )
+                ->get()
+                ->keyBy('id');
 
-                if (!$alat) {
-                    $validator->errors()->add('alat_id', 'Barang yang dipilih tidak ditemukan.');
+            foreach ($request->input('alat_id', []) as $index => $alatId) {
+                $item = $alat->get((int) $alatId);
+                $jumlahDiminta = (int) ($request->jumlah[$index] ?? 0);
+
+                if (!$item || !$item->is_active) {
+                    $validator->errors()->add(
+                        'alat_id',
+                        'Salah satu barang sudah tidak tersedia.'
+                    );
+
                     continue;
                 }
 
-                if ($alat->stok_tersedia < $jumlahDiminta) {
+                if ($item->stok_tersedia < $jumlahDiminta) {
                     $validator->errors()->add(
                         'stok',
-                        'Stok ' . $alat->nama_alat . ' tidak mencukupi. Stok tersedia hanya ' . $alat->stok_tersedia . '.'
+                        "Stok {$item->nama_alat} tidak mencukupi. Stok tersedia hanya {$item->stok_tersedia}."
                     );
                 }
             }
         });
 
         if ($validator->fails()) {
-            $errorKeys = $validator->errors()->keys();
             $step = 1;
 
-            foreach ($errorKeys as $key) {
-                if (Str::startsWith($key, ['nama_lengkap', 'no_telp', 'alamat', 'foto_ktp'])) {
+            foreach ($validator->errors()->keys() as $key) {
+                if (
+                    Str::startsWith(
+                        $key,
+                        [
+                            'nama_lengkap',
+                            'no_telp',
+                            'alamat',
+                            'catatan',
+                            'foto_ktp',
+                        ]
+                    )
+                ) {
                     $step = 2;
                     break;
                 }
@@ -135,56 +201,117 @@ class RentalController extends Controller
 
         $customer = Auth::guard('web')->user();
         $transaksi = null;
+        $fileTersimpan = [];
 
-        DB::transaction(function () use ($request, $customer, &$transaksi) {
-            $fotoKtp = $request->file('foto_ktp')->store('foto-ktp', 'public');
+        try {
+            DB::transaction(function () use (
+                $request,
+                $customer,
+                &$transaksi,
+                &$fileTersimpan
+            ) {
+                $alatIds = collect($request->alat_id)
+                    ->map(fn ($id) => (int) $id)
+                    ->values();
 
-            $customer->update([
-                'nama_lengkap' => $request->nama_lengkap,
-                'no_telp'      => $request->no_telp,
-                'alamat'       => $request->alamat,
-                'foto_ktp'     => $fotoKtp,
-            ]);
+                $alat = Alat::whereIn('id', $alatIds)
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
 
-            $totalHarga = 0;
+                foreach ($alatIds as $index => $alatId) {
+                    $item = $alat->get($alatId);
+                    $jumlah = (int) $request->jumlah[$index];
 
-            foreach ($request->alat_id as $index => $alatId) {
-                $alat = Alat::findOrFail($alatId);
-                $jumlah = (int) $request->jumlah[$index];
-                $lamaSewa = (int) $request->lama_sewa;
-                $subtotal = $alat->harga_per_hari * $jumlah * $lamaSewa;
+                    if (!$item || !$item->is_active) {
+                        throw ValidationException::withMessages([
+                            'alat_id' =>
+                                'Salah satu barang sudah dinonaktifkan. Silakan pilih ulang barang rental.',
+                        ]);
+                    }
 
-                $totalHarga += $subtotal;
-            }
+                    if ($item->stok_tersedia < $jumlah) {
+                        throw ValidationException::withMessages([
+                            'stok' =>
+                                "Stok {$item->nama_alat} tidak mencukupi. Stok tersedia hanya {$item->stok_tersedia}.",
+                        ]);
+                    }
+                }
 
-            $transaksi = Transaksi::create([
-                'customer_id'    => $customer->id,
-                'kode_transaksi' => 'SR-' . strtoupper(Str::random(8)),
-                'status'         => 'menunggu',
-                'total_harga'    => $totalHarga,
-                'total_denda'    => 0,
-                'tanggal_pesan'  => now()->toDateString(),
-            ]);
+                $fotoKtp = $request
+                    ->file('foto_ktp')
+                    ->store('foto-ktp', 'public');
 
-            foreach ($request->alat_id as $index => $alatId) {
-                $alat = Alat::findOrFail($alatId);
-                $jumlah = (int) $request->jumlah[$index];
-                $lamaSewa = (int) $request->lama_sewa;
-                $subtotal = $alat->harga_per_hari * $jumlah * $lamaSewa;
-                $fotoBarang = $request->file('foto_barang')[$index]->store('foto-barang', 'public');
+                $fileTersimpan[] = $fotoKtp;
 
-                DetailTransaksi::create([
-                    'transaksi_id' => $transaksi->id,
-                    'alat_id'      => $alatId,
-                    'foto_barang'  => $fotoBarang,
-                    'jumlah'       => $jumlah,
-                    'lama_sewa'    => $lamaSewa,
-                    'harga_satuan' => $alat->harga_per_hari,
-                    'subtotal'     => $subtotal,
+                $customer->update([
+                    'nama_lengkap' => $request->nama_lengkap,
+                    'no_telp' => $request->no_telp,
+                    'alamat' => $request->alamat,
                 ]);
-            }
-        });
 
-        return redirect()->route('customer.transaksi.show', $transaksi->id);
+                $lamaSewa = (int) $request->lama_sewa;
+                $totalHarga = 0;
+
+                foreach ($alatIds as $index => $alatId) {
+                    $item = $alat->get($alatId);
+                    $jumlah = (int) $request->jumlah[$index];
+
+                    $totalHarga +=
+                        (float) $item->harga_per_hari *
+                        $jumlah *
+                        $lamaSewa;
+                }
+
+                $transaksi = Transaksi::create([
+                    'customer_id' => $customer->id,
+                    'kode_transaksi' =>
+                        'SR-' . strtoupper(Str::random(8)),
+                    'status' => 'menunggu',
+                    'status_pembayaran' => 'belum_bayar',
+                    'total_harga' => $totalHarga,
+                    'total_denda' => 0,
+                    'total_dibayar' => 0,
+                    'tanggal_pesan' => now()->toDateString(),
+                    'catatan' => $request->catatan,
+                    'foto_ktp' => $fotoKtp,
+                ]);
+
+                foreach ($alatIds as $index => $alatId) {
+                    $item = $alat->get($alatId);
+                    $jumlah = (int) $request->jumlah[$index];
+
+                    $subtotal =
+                        (float) $item->harga_per_hari *
+                        $jumlah *
+                        $lamaSewa;
+
+                    $fotoBarang = $request
+                        ->file('foto_barang')[$index]
+                        ->store('foto-barang', 'public');
+
+                    $fileTersimpan[] = $fotoBarang;
+
+                    DetailTransaksi::create([
+                        'transaksi_id' => $transaksi->id,
+                        'alat_id' => $alatId,
+                        'foto_barang' => $fotoBarang,
+                        'jumlah' => $jumlah,
+                        'lama_sewa' => $lamaSewa,
+                        'harga_satuan' => $item->harga_per_hari,
+                        'subtotal' => $subtotal,
+                    ]);
+                }
+            });
+        } catch (Throwable $exception) {
+            foreach ($fileTersimpan as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
+            throw $exception;
+        }
+
+        return redirect()
+            ->route('customer.transaksi.show', $transaksi->id);
     }
 }

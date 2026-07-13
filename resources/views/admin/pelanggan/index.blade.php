@@ -11,6 +11,12 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="mb-6 bg-red-50 text-red-600 text-sm font-medium px-4 py-3 rounded-xl">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
             <h2 class="font-bold text-[#00372c] text-base">
@@ -45,6 +51,9 @@
                         </th>
                         <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider">
                             Metode Daftar
+                        </th>
+                        <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider text-center">
+                            Transaksi
                         </th>
                         <th class="px-6 py-3.5 font-semibold text-xs text-gray-400 uppercase tracking-wider">
                             Terdaftar
@@ -104,6 +113,12 @@
                                 @endif
                             </td>
 
+                            <td class="px-6 py-4 text-center">
+                                <span class="text-sm font-bold {{ $p->transaksi_count > 0 ? 'text-[#085041]' : 'text-gray-400' }}">
+                                    {{ $p->transaksi_count }}
+                                </span>
+                            </td>
+
                             <td class="px-6 py-4 text-gray-400 text-xs">
                                 {{ $p->created_at->translatedFormat('d M Y') }}
                             </td>
@@ -121,24 +136,44 @@
                                         </svg>
                                     </a>
 
-                                    <form method="POST" action="{{ route('admin.pelanggan.destroy', $p->id) }}" onsubmit="return confirm('Yakin hapus pelanggan {{ $p->nama_lengkap }}? Semua data terkait akan ikut terhapus.')">
-                                        @csrf
-                                        @method('DELETE')
+                                    @if($p->transaksi_count === 0)
+                                        <form
+                                            method="POST"
+                                            action="{{ route('admin.pelanggan.destroy', $p->id) }}"
+                                            onsubmit="return confirm('Pelanggan ini belum memiliki riwayat transaksi. Hapus permanen {{ $p->nama_lengkap }}?')"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
 
+                                            <button
+                                                type="submit"
+                                                class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                                title="Hapus permanen"
+                                                aria-label="Hapus {{ $p->nama_lengkap }}"
+                                            >
+                                                <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
+                                                    <path d="M3 6h18"/>
+                                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                                                    <path d="M10 11v6"/>
+                                                    <path d="M14 11v6"/>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @else
                                         <button
-                                            type="submit"
-                                            class="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                                            title="Hapus"
+                                            type="button"
+                                            disabled
+                                            class="p-1.5 text-gray-300 cursor-not-allowed rounded-lg"
+                                            title="Tidak dapat dihapus karena memiliki riwayat transaksi"
+                                            aria-label="{{ $p->nama_lengkap }} tidak dapat dihapus karena memiliki riwayat transaksi"
                                         >
                                             <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24">
-                                                <path d="M3 6h18"/>
-                                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                                <path d="M10 11v6"/>
-                                                <path d="M14 11v6"/>
+                                                <rect x="5" y="10" width="14" height="10" rx="2"/>
+                                                <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
                                             </svg>
                                         </button>
-                                    </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

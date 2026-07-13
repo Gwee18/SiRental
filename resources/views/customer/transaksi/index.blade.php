@@ -3,54 +3,78 @@
 @section('title', 'Transaksi Saya')
 
 @section('content')
-<section class="pt-32 pb-24 bg-gray-50 min-h-screen">
-    <div class="max-w-5xl mx-auto px-6">
+<section class="pt-28 md:pt-32 pb-20 md:pb-24 bg-[#f6f8f7] min-h-screen">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
-        <div class="mb-10">
-            <span class="inline-block bg-[#e8f5f0] text-[#085041] text-xs font-bold tracking-widest uppercase px-3 py-1.5 rounded-full mb-4">
-                Riwayat Rental
-            </span>
-
-            <h1 class="text-3xl font-bold text-[#00372c] mb-2">
+        {{-- HEADER --}}
+        <div class="mb-8 md:mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-[#00372c] mb-3 tracking-tight">
                 Transaksi Saya
             </h1>
 
-            <p class="text-gray-500 text-sm">
-                Pantau status pengajuan, pembayaran, dan pengembalian alat rental kamu.
+            <p class="text-gray-500 text-sm md:text-base max-w-2xl leading-relaxed">
+                Pantau status pengajuan, pembayaran, dan pengembalian alat rental kamu dalam satu halaman.
             </p>
         </div>
 
         @if($transaksi->isEmpty())
-            <div class="bg-white rounded-3xl border border-gray-100 p-16 text-center shadow-sm">
-                <div class="w-16 h-16 rounded-2xl bg-[#e8f5f0] flex items-center justify-center mx-auto mb-5">
-                    <svg width="34" height="34" fill="none" stroke="#085041" stroke-width="1.7" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                        <polyline points="14 2 14 8 20 8"/>
-                        <line x1="16" y1="13" x2="8" y2="13"/>
-                        <line x1="16" y1="17" x2="8" y2="17"/>
-                    </svg>
+            <div class="py-16 md:py-24">
+                <div class="max-w-md mx-auto text-center px-4">
+
+                    <div class="flex justify-center mb-5">
+                        <svg width="44" height="44" fill="none" stroke="#9ca3af" stroke-width="1.8" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <path d="M14 2v6h6"/>
+                            <path d="M9 13h6"/>
+                            <path d="M9 17h4"/>
+                        </svg>
+                    </div>
+
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-500 mb-3">
+                        Belum Ada Transaksi
+                    </h2>
+
+                    <p class="text-gray-400 text-sm leading-relaxed mb-7">
+                        Kamu belum pernah mengajukan rental alat pendakian.
+                    </p>
+
+                    <a
+                        href="{{ route('rental.index') }}"
+                        class="inline-flex items-center justify-center gap-2 bg-[#085041] hover:bg-[#00372c] text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm min-w-[170px]"
+                    >
+                        Mulai Rental
+
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M5 12h14"/>
+                            <path d="M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+
                 </div>
-
-                <h2 class="text-xl font-bold text-[#00372c] mb-2">
-                    Belum Ada Transaksi
-                </h2>
-
-                <p class="text-gray-500 text-sm mb-7">
-                    Kamu belum pernah melakukan pengajuan sewa alat pendakian.
-                </p>
-
-                <a href="{{ route('rental.index') }}" class="inline-flex items-center gap-2 bg-[#085041] hover:bg-[#00372c] text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm">
-                    Mulai Rental
-                    <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M5 12h14"/>
-                        <path d="M12 5l7 7-7 7"/>
-                    </svg>
-                </a>
             </div>
         @else
-            <div class="space-y-5">
+            <div class="space-y-3">
+
+                {{-- DESKTOP HEADER --}}
+                <div class="hidden md:grid grid-cols-[minmax(0,1.35fr)_110px_190px_145px_90px] gap-5 px-5 py-3 bg-white/70 border border-gray-100 rounded-2xl text-xs font-bold uppercase tracking-wider text-gray-400">
+                    <div>Transaksi</div>
+                    <div class="text-center">Lama</div>
+                    <div>Status</div>
+                    <div>Total</div>
+                    <div>Aksi</div>
+                </div>
+
                 @foreach($transaksi as $item)
                     @php
+                        $detailPertama = $item->detailTransaksi->first();
+                        $lamaSewa = $detailPertama->lama_sewa ?? '-';
+
+                        $totalTagihan = (int) $item->total_harga
+                            + (int) $item->total_denda;
+
+                        $totalDibayar = (int) $item->total_dibayar;
+                        $sisaTagihan = max($totalTagihan - $totalDibayar, 0);
+
                         $statusText = match($item->status) {
                             'menunggu' => 'Menunggu Konfirmasi',
                             'disetujui', 'aktif' => 'Sedang Disewa',
@@ -59,84 +83,170 @@
                             default => ucfirst($item->status),
                         };
 
-                        $statusStyle = match($item->status) {
-                            'menunggu' => 'bg-yellow-50 text-yellow-700 border-yellow-100',
-                            'disetujui', 'aktif' => 'bg-[#e8f5f0] text-[#085041] border-[#bcebd8]',
-                            'ditolak' => 'bg-red-50 text-red-600 border-red-100',
-                            'selesai' => 'bg-gray-100 text-gray-600 border-gray-200',
-                            default => 'bg-gray-100 text-gray-600 border-gray-200',
+                        $statusTextColor = match($item->status) {
+                            'menunggu' => 'text-yellow-700',
+                            'disetujui', 'aktif' => 'text-[#085041]',
+                            'ditolak' => 'text-red-600',
+                            'selesai' => 'text-gray-500',
+                            default => 'text-gray-500',
                         };
 
-                        $statusIcon = match($item->status) {
-                            'menunggu' => '<path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/>',
-                            'disetujui', 'aktif' => '<path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/>',
-                            'ditolak' => '<circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6"/><path d="M9 9l6 6"/>',
-                            'selesai' => '<path d="M20 6L9 17l-5-5"/>',
-                            default => '<circle cx="12" cy="12" r="9"/>',
-                        };
+                        if ($item->status === 'ditolak') {
+                            $totalTagihan = 0;
+                            $totalDibayar = 0;
+                            $sisaTagihan = 0;
 
-                        $detailPertama = $item->detailTransaksi->first();
-                        $totalBayar = $item->total_harga + $item->total_denda;
+                            $statusPembayaranText = 'Tidak Ada Tagihan';
+                            $statusPembayaranColor = 'text-gray-400';
+                        } else {
+                            $statusPembayaranText = match($item->status_pembayaran) {
+                                'belum_bayar' => 'Belum Dibayar',
+                                'sewa_lunas' => 'Biaya Sewa Lunas',
+                                'lunas' => 'Lunas',
+                                default => 'Belum Dibayar',
+                            };
+
+                            $statusPembayaranColor = match($item->status_pembayaran) {
+                                'belum_bayar' => 'text-amber-600',
+                                'sewa_lunas', 'lunas' => 'text-[#085041]',
+                                default => 'text-gray-500',
+                            };
+                        }
                     @endphp
 
-                    <a href="{{ route('customer.transaksi.show', $item->id) }}" class="block bg-white rounded-3xl border border-gray-100 hover:shadow-lg hover:-translate-y-0.5 transition-all p-6">
-                        <div class="flex flex-wrap items-start justify-between gap-5">
+                    <a
+                        href="{{ route('customer.transaksi.show', $item->id) }}"
+                        class="block bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all p-4 md:p-0 overflow-hidden"
+                    >
 
-                            <div class="flex gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-[#e8f5f0] flex items-center justify-center shrink-0">
-                                    <svg width="24" height="24" fill="none" stroke="#085041" stroke-width="1.8" viewBox="0 0 24 24">
-                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                        <polyline points="3.29 7 12 12 20.71 7"/>
-                                        <line x1="12" y1="22" x2="12" y2="12"/>
-                                    </svg>
-                                </div>
+                        {{-- MOBILE --}}
+                        <div class="md:hidden space-y-3">
+                            <div>
+                                <p class="text-[11px] text-gray-400 leading-relaxed mb-1">
+                                    <span class="font-semibold text-gray-500">
+                                        {{ $item->kode_transaksi }}
+                                    </span>
+                                    <br>
+                                    {{ $item->created_at->translatedFormat('d M Y, H:i') }} WIB
+                                </p>
 
-                                <div>
-                                    <p class="text-xs text-gray-400 mb-1">
-                                        {{ $item->kode_transaksi }} &middot; {{ $item->created_at->translatedFormat('d M Y, H:i') }}
-                                    </p>
-
-                                    @if($detailPertama)
-                                        <h2 class="font-bold text-[#00372c] text-base">
-                                            {{ $detailPertama->alat->nama_alat ?? 'Alat tidak ditemukan' }}
-
-                                            @if($item->detailTransaksi->count() > 1)
-                                                <span class="text-gray-400 font-normal text-sm">
-                                                    + {{ $item->detailTransaksi->count() - 1 }} alat lainnya
-                                                </span>
-                                            @endif
-                                        </h2>
-
-                                        <p class="text-gray-500 text-xs mt-1">
-                                            Lama sewa: {{ $detailPertama->lama_sewa }} hari
-                                        </p>
-                                    @else
-                                        <h2 class="font-bold text-[#00372c] text-base">
-                                            Detail alat tidak tersedia
-                                        </h2>
-                                    @endif
-                                </div>
+                                <p class="text-gray-500 text-sm">
+                                    Lama sewa: {{ $lamaSewa }} {{ is_numeric($lamaSewa) ? 'hari' : '' }}
+                                </p>
                             </div>
 
-                            <div class="text-right">
-                                <span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border {{ $statusStyle }}">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                        {!! $statusIcon !!}
-                                    </svg>
-                                    {{ $statusText }}
-                                </span>
+                            <div class="border-t border-gray-100 pt-3 flex items-start justify-between gap-3">
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold {{ $statusTextColor }}">
+                                        {{ $statusText }}
+                                    </p>
 
-                                <p class="text-[#085041] font-bold text-base mt-3">
-                                    Rp {{ number_format($totalBayar, 0, ',', '.') }}
+                                    <p class="text-xs font-semibold {{ $statusPembayaranColor }} mt-1">
+                                        {{ $statusPembayaranText }}
+                                    </p>
+
+                                    <div class="mt-3">
+                                        <p class="text-[#085041] font-bold text-2xl leading-none">
+                                            Rp {{ number_format($totalTagihan, 0, ',', '.') }}
+                                        </p>
+
+                                        @if($item->total_denda > 0)
+                                            <p class="text-red-500 text-xs mt-1">
+                                                Denda Rp {{ number_format($item->total_denda, 0, ',', '.') }}
+                                            </p>
+                                        @endif
+
+                                        @if($totalDibayar > 0)
+                                            <p class="text-[#085041] text-xs mt-1">
+                                                Dibayar Rp {{ number_format($totalDibayar, 0, ',', '.') }}
+                                            </p>
+                                        @endif
+
+                                        @if($sisaTagihan > 0)
+                                            <p class="text-amber-600 text-xs mt-1">
+                                                Sisa Rp {{ number_format($sisaTagihan, 0, ',', '.') }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="shrink-0 self-end">
+                                    <span class="inline-flex items-center gap-1 text-[#085041] text-xs font-semibold">
+                                        Lihat Detail
+
+                                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path d="M5 12h14"/>
+                                            <path d="M12 5l7 7-7 7"/>
+                                        </svg>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- DESKTOP --}}
+                        <div class="hidden md:grid grid-cols-[minmax(0,1.35fr)_110px_190px_145px_90px] gap-5 items-center px-5 py-4">
+                            <div class="min-w-0">
+                                <h2 class="text-[#00372c] font-bold text-base truncate">
+                                    {{ $item->kode_transaksi }}
+                                </h2>
+
+                                <p class="text-gray-400 text-xs mt-1">
+                                    {{ $item->created_at->translatedFormat('d M Y, H:i') }} WIB
+                                </p>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-sm font-semibold text-[#00372c]">
+                                    {{ $lamaSewa }} {{ is_numeric($lamaSewa) ? 'hari' : '' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-sm font-bold {{ $statusTextColor }}">
+                                    {{ $statusText }}
+                                </p>
+
+                                <p class="text-xs font-semibold {{ $statusPembayaranColor }} mt-1">
+                                    {{ $statusPembayaranText }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#085041] font-bold text-xl leading-none whitespace-nowrap">
+                                    Rp {{ number_format($totalTagihan, 0, ',', '.') }}
                                 </p>
 
                                 @if($item->total_denda > 0)
-                                    <p class="text-red-500 text-xs mt-0.5">
-                                        Termasuk denda Rp {{ number_format($item->total_denda, 0, ',', '.') }}
+                                    <p class="text-red-500 text-xs mt-1">
+                                        Denda Rp {{ number_format($item->total_denda, 0, ',', '.') }}
+                                    </p>
+                                @endif
+
+                                @if($totalDibayar > 0)
+                                    <p class="text-[#085041] text-xs mt-1">
+                                        Dibayar Rp {{ number_format($totalDibayar, 0, ',', '.') }}
+                                    </p>
+                                @endif
+
+                                @if($sisaTagihan > 0)
+                                    <p class="text-amber-600 text-xs mt-1">
+                                        Sisa Rp {{ number_format($sisaTagihan, 0, ',', '.') }}
                                     </p>
                                 @endif
                             </div>
+
+                            <div>
+                                <span class="inline-flex items-center gap-1 text-[#085041] text-sm font-semibold whitespace-nowrap">
+                                    Detail
+
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path d="M5 12h14"/>
+                                        <path d="M12 5l7 7-7 7"/>
+                                    </svg>
+                                </span>
+                            </div>
                         </div>
+
                     </a>
                 @endforeach
             </div>

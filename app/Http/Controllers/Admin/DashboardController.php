@@ -3,25 +3,36 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Transaksi;
-use App\Models\Customer;
 use App\Models\Alat;
-use App\Models\Denda;
+use App\Models\Customer;
+use App\Models\Transaksi;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $totalCustomer    = Customer::count();
-        $totalAlat        = Alat::count();
+        $totalCustomer = Customer::count();
+        $totalAlat = Alat::count();
+
         $transaksiMenunggu = Transaksi::where('status', 'menunggu')->count();
-        $transaksiAktif   = Transaksi::where('status', 'aktif')->count();
-        $totalPendapatan  = Transaksi::where('status', 'selesai')->sum('total_harga');
-        $totalDenda       = Denda::sum('total_denda');
+        $transaksiAktif = Transaksi::where('status', 'aktif')->count();
+
+        // Seluruh uang yang benar-benar sudah diterima, termasuk biaya sewa
+        // transaksi aktif dan denda transaksi yang sudah selesai.
+        $totalPendapatan = (int) Transaksi::whereIn(
+            'status_pembayaran',
+            ['sewa_lunas', 'lunas']
+        )->sum('total_dibayar');
+
+        // Denda hanya dianggap terkumpul setelah transaksi selesai dan lunas.
+        $totalDenda = (int) Transaksi::where('status', 'selesai')
+            ->where('status_pembayaran', 'lunas')
+            ->sum('total_denda');
+
         $transaksiTerbaru = Transaksi::with('customer')
-                            ->orderBy('created_at', 'desc')
-                            ->take(5)
-                            ->get();
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('admin.dashboard', compact(
             'totalCustomer',
