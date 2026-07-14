@@ -2026,6 +2026,85 @@
     }
 }
 
+
+    /* Data profil pada form rental */
+    .profile-data-note {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 22px;
+        padding: 14px 16px;
+        border: 1px solid #C4E8DA;
+        border-radius: 14px;
+        background: #F1FAF6;
+        color: #0E5344;
+    }
+
+    .profile-data-note svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .profile-data-note strong {
+        display: block;
+        color: #0A1F1A;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 3px;
+    }
+
+    .profile-data-note span {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    .profile-sync-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin: 4px 0 24px;
+        padding: 15px 16px;
+        border: 1px solid #D4DFD8;
+        border-radius: 14px;
+        background: #FFFFFF;
+        cursor: pointer;
+        transition: .2s ease;
+    }
+
+    .profile-sync-card:hover {
+        border-color: #68DBAE;
+        background: #F8FBF9;
+    }
+
+    .profile-sync-card input {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+        margin-top: 2px;
+        accent-color: #085041;
+        cursor: pointer;
+    }
+
+    .profile-sync-card strong {
+        display: block;
+        color: #0A1F1A;
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 4px;
+    }
+
+    .profile-sync-card span {
+        display: block;
+        color: #5A6B64;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
 </style>
 
 <div class="rental-page">
@@ -2325,6 +2404,30 @@
                                 </div>
                             </div>
 
+
+                            <div class="profile-data-note">
+                                <svg
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle cx="12" cy="8" r="4"/>
+                                    <path d="M4 21a8 8 0 0 1 16 0"/>
+                                </svg>
+
+                                <div>
+                                    <strong>
+                                        Data diisi otomatis dari profil
+                                    </strong>
+
+                                    <span>
+                                        Anda tetap dapat mengubahnya untuk
+                                        transaksi ini tanpa mengubah profil.
+                                    </span>
+                                </div>
+                            </div>
+
                             <div class="data-grid">
                                 <div>
                                     <div class="two-column">
@@ -2333,7 +2436,7 @@
                                             <input
                                                 type="text"
                                                 name="nama_lengkap"
-                                                value="{{ old('nama_lengkap', Auth::guard('web')->user()->nama_lengkap ?? '') }}"
+                                                value="{{ old('nama_lengkap', $customer->nama_lengkap ?? '') }}"
                                                 placeholder="Sesuai KTP"
                                                 class="form-control @error('nama_lengkap') is-invalid @enderror"
                                                 required
@@ -2349,7 +2452,7 @@
                                             <input
                                                 type="text"
                                                 name="no_telp"
-                                                value="{{ old('no_telp', Auth::guard('web')->user()->no_telp ?? '') }}"
+                                                value="{{ old('no_telp', $customer->no_telp ?? '') }}"
                                                 placeholder="Contoh: 081234567890"
                                                 class="form-control @error('no_telp') is-invalid @enderror"
                                                 required
@@ -2368,12 +2471,34 @@
                                             placeholder="Masukkan alamat lengkap Anda"
                                             class="form-textarea @error('alamat') is-invalid @enderror"
                                             required
-                                        >{{ old('alamat', Auth::guard('web')->user()->alamat ?? '') }}</textarea>
+                                        >{{ old('alamat', $customer->alamat ?? '') }}</textarea>
 
                                         @error('alamat')
                                             <p class="field-error show">{{ $message }}</p>
                                         @enderror
                                     </div>
+
+
+                                    <label class="profile-sync-card">
+                                        <input
+                                            type="checkbox"
+                                            name="simpan_ke_profil"
+                                            value="1"
+                                            @checked(old('simpan_ke_profil'))
+                                        >
+
+                                        <span>
+                                            <strong>
+                                                Simpan sebagai data profil terbaru
+                                            </strong>
+
+                                            <span>
+                                                Centang jika nama, nomor telepon,
+                                                dan alamat di atas juga ingin
+                                                digunakan pada rental berikutnya.
+                                            </span>
+                                        </span>
+                                    </label>
 
                                     <div class="form-group">
                                         <label class="form-label">Upload Foto KTP</label>

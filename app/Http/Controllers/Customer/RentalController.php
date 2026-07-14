@@ -24,7 +24,12 @@ class RentalController extends Controller
             ->orderBy('nama_alat')
             ->get();
 
-        return view('customer.rental.form', compact('alat'));
+        $customer = Auth::guard('web')->user();
+
+        return view(
+            'customer.rental.form',
+            compact('alat', 'customer')
+        );
     }
 
     public function store(Request $request)
@@ -60,6 +65,11 @@ class RentalController extends Controller
             'no_telp' => ['required', 'string', 'max:20'],
             'alamat' => ['required', 'string'],
             'catatan' => ['nullable', 'string', 'max:1000'],
+
+            'simpan_ke_profil' => [
+                'nullable',
+                'boolean',
+            ],
 
             'foto_ktp' => [
                 'bail',
@@ -244,11 +254,16 @@ class RentalController extends Controller
 
                 $fileTersimpan[] = $fotoKtp;
 
-                $customer->update([
-                    'nama_lengkap' => $request->nama_lengkap,
-                    'no_telp' => $request->no_telp,
-                    'alamat' => $request->alamat,
-                ]);
+                if ($request->boolean('simpan_ke_profil')) {
+                    $customer->update([
+                        'nama_lengkap' =>
+                            $request->nama_lengkap,
+                        'no_telp' =>
+                            $request->no_telp,
+                        'alamat' =>
+                            $request->alamat,
+                    ]);
+                }
 
                 $lamaSewa = (int) $request->lama_sewa;
                 $totalHarga = 0;
@@ -265,6 +280,14 @@ class RentalController extends Controller
 
                 $transaksi = Transaksi::create([
                     'customer_id' => $customer->id,
+                    'nama_peminjam' =>
+                        $request->nama_lengkap,
+                    'email_peminjam' =>
+                        $customer->email,
+                    'no_telp_peminjam' =>
+                        $request->no_telp,
+                    'alamat_peminjam' =>
+                        $request->alamat,
                     'kode_transaksi' =>
                         'SR-' . strtoupper(Str::random(8)),
                     'status' => 'menunggu',

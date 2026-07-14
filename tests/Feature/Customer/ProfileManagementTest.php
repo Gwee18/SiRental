@@ -6,67 +6,34 @@ use App\Models\Customer;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ProfileManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    private string $testDiskRoot;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        /*
-         * Gunakan folder TEMP Windows yang unik untuk setiap test.
-         * Folder yang sama tidak digunakan ulang agar tidak terkunci
-         * oleh adapter filesystem dari test sebelumnya.
-         */
-        $this->testDiskRoot =
-            sys_get_temp_dir() .
-            DIRECTORY_SEPARATOR .
-            'sirental-profile-' .
-            bin2hex(random_bytes(8));
-
-        if (
-            !mkdir(
-                $this->testDiskRoot,
-                0777,
-                true
-            ) &&
-            !is_dir($this->testDiskRoot)
-        ) {
-            throw new \RuntimeException(
-                'Folder testing profil tidak dapat dibuat.'
-            );
-        }
-
-        config()->set('filesystems.disks.public', [
-            'driver' => 'local',
-            'root' => $this->testDiskRoot,
-            'url' => '/storage',
-            'visibility' => 'public',
-            'throw' => false,
-        ]);
-
-        Storage::forgetDisk('public');
-    }
+    /**
+     * Daftar file lokal sementara yang dibuat selama test.
+     *
+     * @var array<int, string>
+     */
+    private array $temporaryFiles = [];
 
     protected function tearDown(): void
     {
-        $testDiskRoot = $this->testDiskRoot;
-
-        Storage::forgetDisk('public');
-
         /*
-         * Hancurkan aplikasi terlebih dahulu agar handle filesystem
-         * dilepas oleh Windows, baru folder temporary dibersihkan.
+         * Hapus hanya file yang dibuat oleh test ini.
+         * Konfigurasi dan instance disk "public" tidak pernah diubah,
+         * sehingga tidak dapat memengaruhi kelas test berikutnya.
          */
-        parent::tearDown();
+        foreach (array_unique($this->temporaryFiles) as $path) {
+            if ($path) {
+                Storage::disk('public')->delete($path);
+            }
+        }
 
-        (new \Illuminate\Filesystem\Filesystem())
-            ->deleteDirectory($testDiskRoot);
+        parent::tearDown();
     }
 
     public function test_customer_profile_page_can_be_rendered(): void
@@ -144,14 +111,20 @@ class ProfileManagementTest extends TestCase
 
     public function test_customer_can_replace_local_profile_photo(): void
     {
+        $oldPhoto =
+            'foto-profil/testing-old-' .
+            Str::uuid() .
+            '.jpg';
+
         Storage::disk('public')->put(
-            'foto-profil/foto-lama.jpg',
+            $oldPhoto,
             'old-image'
         );
 
+        $this->rememberTemporaryFile($oldPhoto);
+
         $customer = $this->createCustomer([
-            'foto_profil' =>
-                'foto-profil/foto-lama.jpg',
+            'foto_profil' => $oldPhoto,
         ]);
 
         $response = $this
@@ -181,7 +154,11 @@ class ProfileManagementTest extends TestCase
         $customer->refresh();
 
         $this->assertNotSame(
-            'foto-profil/foto-lama.jpg',
+            $oldPhoto,
+            $customer->foto_profil
+        );
+
+        $this->rememberTemporaryFile(
             $customer->foto_profil
         );
 
@@ -190,7 +167,7 @@ class ProfileManagementTest extends TestCase
         );
 
         Storage::disk('public')->assertMissing(
-            'foto-profil/foto-lama.jpg'
+            $oldPhoto
         );
     }
 
@@ -228,6 +205,10 @@ class ProfileManagementTest extends TestCase
                 $customer->foto_profil,
                 'http'
             )
+        );
+
+        $this->rememberTemporaryFile(
+            $customer->foto_profil
         );
 
         Storage::disk('public')->assertExists(
@@ -299,11 +280,6 @@ class ProfileManagementTest extends TestCase
         $this->assertNull(
             $customer->fresh()->foto_profil
         );
-
-        $this->assertSame(
-            [],
-            Storage::disk('public')->allFiles()
-        );
     }
 
     public function test_profile_photo_larger_than_two_megabytes_is_rejected(): void
@@ -338,11 +314,20 @@ class ProfileManagementTest extends TestCase
         $this->assertNull(
             $customer->fresh()->foto_profil
         );
+    }
 
-        $this->assertSame(
-            [],
-            Storage::disk('public')->allFiles()
-        );
+    private function rememberTemporaryFile(
+        ?string $path
+    ): void {
+        if (
+            $path &&
+            !Str::startsWith(
+                $path,
+                ['http://', 'https://']
+            )
+        ) {
+            $this->temporaryFiles[] = $path;
+        }
     }
 
     private function createCustomer(

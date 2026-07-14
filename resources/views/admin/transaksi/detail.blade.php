@@ -35,16 +35,8 @@
             default => ucfirst($transaksi->status),
         };
 
-        $statusPembayaranColor = match($transaksi->status_pembayaran) {
-            'belum_bayar' => 'text-yellow-600',
-            'sewa_lunas', 'lunas' => 'text-[#085041]',
-            default => 'text-gray-500',
-        };
-
         $fotoKtp = $transaksi->foto_ktp ?? ($transaksi->customer->foto_ktp ?? null);
-        $totalPembayaran = $transaksi->total_tagihan;
-        $totalDibayar = (int) $transaksi->total_dibayar;
-        $sisaTagihan = max(0, $totalPembayaran - $totalDibayar);
+        $totalPembayaran = ($transaksi->total_harga ?? 0) + ($transaksi->total_denda ?? 0);
     @endphp
 
     <div class="w-full">
@@ -89,28 +81,32 @@
                             <div>
                                 <p class="text-gray-400 text-xs mb-1">Nama</p>
                                 <p class="font-semibold text-[#00372c]">
-                                    {{ $transaksi->customer->nama_lengkap ?? '-' }}
+                                    {{ $transaksi->nama_peminjam
+    ?: ($transaksi->customer->nama_lengkap ?? '-') }}
                                 </p>
                             </div>
 
                             <div>
                                 <p class="text-gray-400 text-xs mb-1">Email</p>
                                 <p class="font-semibold text-[#00372c] break-all">
-                                    {{ $transaksi->customer->email ?? '-' }}
+                                    {{ $transaksi->email_peminjam
+    ?: ($transaksi->customer->email ?? '-') }}
                                 </p>
                             </div>
 
                             <div>
                                 <p class="text-gray-400 text-xs mb-1">No. Telepon</p>
                                 <p class="font-semibold text-[#00372c]">
-                                    {{ $transaksi->customer->no_telp ?? '-' }}
+                                    {{ $transaksi->no_telp_peminjam
+    ?: ($transaksi->customer->no_telp ?? '-') }}
                                 </p>
                             </div>
 
                             <div>
                                 <p class="text-gray-400 text-xs mb-1">Alamat</p>
                                 <p class="font-semibold text-[#00372c] leading-relaxed">
-                                    {{ $transaksi->customer->alamat ?? '-' }}
+                                    {{ $transaksi->alamat_peminjam
+    ?: ($transaksi->customer->alamat ?? '-') }}
                                 </p>
                             </div>
                         </div>
@@ -125,10 +121,9 @@
                                 </span>
 
                                 <span class="font-medium text-[#00372c]">
-                                    {{ \Carbon\Carbon::parse($transaksi->tanggal_mulai)->translatedFormat('d M Y, H:i') }}
+                                    {{ \Carbon\Carbon::parse($transaksi->tanggal_mulai)->translatedFormat('d M Y') }}
                                     &mdash;
-                                    {{ \Carbon\Carbon::parse($transaksi->tanggal_selesai)->translatedFormat('d M Y, H:i') }}
-                                    WIB
+                                    {{ \Carbon\Carbon::parse($transaksi->tanggal_selesai)->translatedFormat('d M Y') }}
                                 </span>
                             </p>
                         </div>
@@ -360,7 +355,7 @@
                     </p>
 
                     <div class="space-y-4">
-                        <div class="flex items-center justify-between gap-4 text-sm">
+                        <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">Total Sewa</span>
                             <span class="font-semibold text-[#00372c]">
                                 Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
@@ -368,48 +363,29 @@
                         </div>
 
                         @if(($transaksi->total_denda ?? 0) > 0)
-                            <div class="flex items-center justify-between gap-4 text-sm">
-                                <span class="text-gray-500">Denda</span>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-red-500">Denda</span>
                                 <span class="font-semibold text-red-500">
                                     Rp {{ number_format($transaksi->total_denda, 0, ',', '.') }}
                                 </span>
                             </div>
                         @endif
 
-                        <div class="flex items-center justify-between gap-4 text-sm">
-                            <span class="text-gray-500">Status Pembayaran</span>
-                            <span class="font-semibold {{ $statusPembayaranColor }}">
-                                {{ $transaksi->status_pembayaran_label }}
-                            </span>
-                        </div>
-
-                        <div class="flex items-center justify-between gap-4 text-sm">
-                            <span class="text-gray-500">Total Dibayar</span>
-                            <span class="font-semibold text-[#00372c]">
-                                Rp {{ number_format($totalDibayar, 0, ',', '.') }}
-                            </span>
-                        </div>
-
-                        <div class="flex items-center justify-between gap-4 text-sm">
+                        <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">Metode</span>
-                            <span class="font-semibold text-[#085041]">Cash</span>
+                            <span class="text-sm font-semibold text-[#085041]">
+                                Cash
+                            </span>
                         </div>
 
                         <div class="pt-4 border-t border-gray-100">
                             <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-2">
-                                Total Biaya Transaksi
+                                Total Pembayaran
                             </p>
 
                             <p class="text-2xl font-bold text-[#085041]">
                                 Rp {{ number_format($totalPembayaran, 0, ',', '.') }}
                             </p>
-
-                            <div class="flex items-center justify-between gap-4 text-sm mt-4">
-                                <span class="text-gray-500">Sisa Tagihan</span>
-                                <span class="font-bold {{ $sisaTagihan > 0 ? 'text-red-500' : 'text-[#085041]' }}">
-                                    Rp {{ number_format($sisaTagihan, 0, ',', '.') }}
-                                </span>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -421,19 +397,15 @@
                             Aksi Admin
                         </p>
 
-                        <p class="text-xs text-gray-500 leading-relaxed mb-4">
-                            Pastikan pembayaran sewa tunai sudah diterima sebelum pesanan dikonfirmasi.
-                        </p>
-
                         <div class="space-y-3">
-                            <form method="POST" action="{{ route('admin.transaksi.approve', $transaksi->id) }}" onsubmit="return confirm('Pastikan pembayaran sewa sudah diterima. Lanjutkan konfirmasi pesanan?')">
+                            <form method="POST" action="{{ route('admin.transaksi.approve', $transaksi->id) }}">
                                 @csrf
 
                                 <button type="submit" class="w-full flex items-center justify-center gap-2 bg-[#085041] hover:bg-[#00372c] text-white font-semibold px-6 py-3 rounded-xl transition-all text-sm">
                                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                                         <path d="M20 6L9 17l-5-5"/>
                                     </svg>
-                                    Konfirmasi Pembayaran & Setujui
+                                    Setujui Pesanan
                                 </button>
                             </form>
 

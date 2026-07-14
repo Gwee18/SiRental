@@ -6,14 +6,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaksi extends Model
 {
-    public const PEMBAYARAN_BELUM_BAYAR = 'belum_bayar';
-    public const PEMBAYARAN_SEWA_LUNAS = 'sewa_lunas';
-    public const PEMBAYARAN_LUNAS = 'lunas';
+    public const PEMBAYARAN_BELUM_BAYAR =
+        'belum_bayar';
+
+    public const PEMBAYARAN_SEWA_LUNAS =
+        'sewa_lunas';
+
+    public const PEMBAYARAN_LUNAS =
+        'lunas';
 
     protected $table = 'transaksi';
 
     protected $fillable = [
         'customer_id',
+        'nama_peminjam',
+        'email_peminjam',
+        'no_telp_peminjam',
+        'alamat_peminjam',
         'kode_transaksi',
         'status',
         'status_pembayaran',
@@ -30,7 +39,8 @@ class Transaksi extends Model
     ];
 
     protected $attributes = [
-        'status_pembayaran' => self::PEMBAYARAN_BELUM_BAYAR,
+        'status_pembayaran' =>
+            self::PEMBAYARAN_BELUM_BAYAR,
         'total_dibayar' => 0,
     ];
 
@@ -51,10 +61,22 @@ class Transaksi extends Model
     public function getStatusPembayaranLabelAttribute(): string
     {
         return match ($this->status_pembayaran) {
-            self::PEMBAYARAN_BELUM_BAYAR => 'Belum Dibayar',
-            self::PEMBAYARAN_SEWA_LUNAS => 'Sewa Lunas',
-            self::PEMBAYARAN_LUNAS => 'Lunas',
-            default => ucfirst(str_replace('_', ' ', (string) $this->status_pembayaran)),
+            self::PEMBAYARAN_BELUM_BAYAR =>
+                'Belum Dibayar',
+
+            self::PEMBAYARAN_SEWA_LUNAS =>
+                'Sewa Lunas',
+
+            self::PEMBAYARAN_LUNAS =>
+                'Lunas',
+
+            default => ucfirst(
+                str_replace(
+                    '_',
+                    ' ',
+                    (string) $this->status_pembayaran
+                )
+            ),
         };
     }
 
@@ -62,7 +84,8 @@ class Transaksi extends Model
     {
         return max(
             0,
-            (int) $this->total_harga + (int) $this->total_denda
+            (int) $this->total_harga +
+            (int) $this->total_denda
         );
     }
 
@@ -70,7 +93,8 @@ class Transaksi extends Model
     {
         return max(
             0,
-            $this->total_tagihan - (int) $this->total_dibayar
+            $this->total_tagihan -
+            (int) $this->total_dibayar
         );
     }
 
@@ -81,7 +105,9 @@ class Transaksi extends Model
 
     public function detailTransaksi()
     {
-        return $this->hasMany(DetailTransaksi::class);
+        return $this->hasMany(
+            DetailTransaksi::class
+        );
     }
 
     public function denda()
