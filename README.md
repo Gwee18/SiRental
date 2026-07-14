@@ -1,59 +1,359 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SiRental
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SiRental adalah aplikasi web untuk pemesanan dan pengelolaan rental alat
+pendakian. Aplikasi memiliki dua peran utama, yaitu customer dan admin.
 
-## About Laravel
+## Fitur utama
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Customer
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Melihat katalog alat pendakian.
+- Login menggunakan OTP email.
+- Login menggunakan akun Google.
+- Mengajukan rental dengan beberapa alat sekaligus.
+- Mengunggah foto identitas dan foto kondisi barang.
+- Menggunakan data profil sebagai isian awal form rental.
+- Menyimpan snapshot data peminjam pada setiap transaksi.
+- Melihat status dan detail transaksi.
+- Memperbarui profil dan foto profil.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Admin
 
-## Learning Laravel
+- Login melalui halaman admin terpisah.
+- Melihat ringkasan dashboard.
+- Mengelola data alat dan ketersediaan stok.
+- Mengaktifkan atau menonaktifkan alat.
+- Menyetujui atau menolak pengajuan rental.
+- Memproses pengembalian menggunakan kode transaksi.
+- Menghitung keterlambatan dan denda secara otomatis.
+- Mengelola data pelanggan.
+- Melihat laporan bulanan.
+- Mengunduh laporan PDF.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Teknologi
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.2 atau lebih baru
+- Laravel 12
+- MySQL atau MariaDB
+- Blade
+- Tailwind CSS
+- Vite
+- Laravel Socialite
+- DomPDF
+- Intervention Image
+- PHPUnit
 
-## Laravel Sponsors
+## Persyaratan
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Pastikan perangkat sudah memiliki:
 
-### Premium Partners
+- PHP 8.2+
+- Composer
+- Node.js dan npm
+- MySQL atau MariaDB
+- Ekstensi PHP:
+  - `pdo_mysql`
+  - `mbstring`
+  - `openssl`
+  - `fileinfo`
+  - `gd`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+Pengguna XAMPP dapat menjalankan Apache dan MySQL melalui XAMPP Control
+Panel.
 
-## Contributing
+## Instalasi
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. Clone repository
 
-## Code of Conduct
+```bash
+git clone https://github.com/Gwee18/SiRental.git
+cd SiRental
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Instal dependency PHP
 
-## Security Vulnerabilities
+```bash
+composer install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 3. Buat file environment
 
-## License
+Windows PowerShell:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```powershell
+Copy-Item .env.example .env
+```
+
+Command Prompt:
+
+```cmd
+copy .env.example .env
+```
+
+Linux atau macOS:
+
+```bash
+cp .env.example .env
+```
+
+### 4. Buat application key
+
+```bash
+php artisan key:generate
+```
+
+### 5. Buat database
+
+Buat database MySQL bernama:
+
+```text
+sirental
+```
+
+Contoh melalui MySQL:
+
+```sql
+CREATE DATABASE sirental
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+```
+
+Sesuaikan konfigurasi database pada `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=sirental
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+### 6. Jalankan migration dan seeder
+
+```bash
+php artisan migrate --seed
+```
+
+### 7. Buat symbolic link storage
+
+```bash
+php artisan storage:link
+```
+
+### 8. Instal dependency frontend
+
+```bash
+npm install
+```
+
+### 9. Jalankan aplikasi
+
+Terminal pertama:
+
+```bash
+php artisan serve
+```
+
+Terminal kedua:
+
+```bash
+npm run dev
+```
+
+Aplikasi dapat dibuka melalui:
+
+```text
+http://127.0.0.1:8000
+```
+
+Untuk build production frontend:
+
+```bash
+npm run build
+```
+
+## Konfigurasi OTP email
+
+Secara default `.env.example` menggunakan:
+
+```env
+MAIL_MAILER=log
+```
+
+Dengan konfigurasi tersebut, kode OTP tidak dikirim ke email asli. Kode dapat
+dilihat pada:
+
+```text
+storage/logs/laravel.log
+```
+
+Untuk mengirim OTP melalui SMTP, ubah konfigurasi berikut sesuai penyedia
+email:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=your-email@example.com
+MAIL_PASSWORD=your-app-password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your-email@example.com
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+Setelah mengubah `.env`, jalankan:
+
+```bash
+php artisan config:clear
+```
+
+## Konfigurasi Google Login
+
+Buat kredensial OAuth pada Google Cloud Console dan tambahkan callback:
+
+```text
+http://127.0.0.1:8000/auth/google/callback
+```
+
+Isi variabel berikut pada `.env`:
+
+```env
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=http://127.0.0.1:8000/auth/google/callback
+```
+
+Kemudian jalankan:
+
+```bash
+php artisan config:clear
+```
+
+## Login admin lokal
+
+Seeder membuat akun admin untuk pengembangan lokal:
+
+```text
+Email    : admin@sirental.com
+Password : admin123
+```
+
+Halaman login admin:
+
+```text
+http://127.0.0.1:8000/admin/login
+```
+
+Ubah kredensial bawaan sebelum menggunakan aplikasi pada lingkungan publik
+atau produksi.
+
+## Menjalankan test
+
+Jalankan seluruh test:
+
+```bash
+php artisan test
+```
+
+Pemeriksaan berhenti saat kegagalan pertama:
+
+```bash
+php artisan test --stop-on-failure
+```
+
+Pemeriksaan format kode:
+
+```bash
+./vendor/bin/pint --test
+```
+
+Windows PowerShell:
+
+```powershell
+.\vendor\bin\pint --test
+```
+
+Memperbaiki format secara otomatis:
+
+```bash
+./vendor/bin/pint
+```
+
+## Pemeriksaan keamanan dependency
+
+```bash
+composer audit
+npm audit
+```
+
+## Command setelah perubahan konfigurasi atau tampilan
+
+```bash
+php artisan optimize:clear
+php artisan view:clear
+```
+
+## Struktur utama
+
+```text
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── Admin/
+│   │   ├── Auth/
+│   │   └── Customer/
+│   └── Middleware/
+├── Models/
+database/
+├── migrations/
+└── seeders/
+resources/
+└── views/
+    ├── admin/
+    ├── auth/
+    ├── customer/
+    └── layouts/
+routes/
+└── web.php
+tests/
+├── Feature/
+└── Unit/
+```
+
+## Alur rental
+
+```text
+Customer login
+    ↓
+Memilih alat dan lama sewa
+    ↓
+Mengisi data diri dan mengunggah dokumen
+    ↓
+Pengajuan berstatus menunggu
+    ↓
+Admin menyetujui atau menolak
+    ↓
+Pembayaran sewa dikonfirmasi
+    ↓
+Rental berstatus aktif
+    ↓
+Admin memproses pengembalian
+    ↓
+Denda dihitung jika terlambat
+    ↓
+Transaksi selesai
+```
+
+## Catatan keamanan
+
+- Jangan commit file `.env`.
+- Jangan menyimpan password SMTP atau Google OAuth di repository.
+- Gunakan `APP_DEBUG=false` pada production.
+- Ganti akun admin bawaan sebelum deployment.
+- Jalankan `composer audit`, `npm audit`, dan test sebelum deployment.
+
+## Lisensi
+
+Proyek ini dibuat untuk kebutuhan pembelajaran dan pengembangan sistem
+rental alat pendakian.
