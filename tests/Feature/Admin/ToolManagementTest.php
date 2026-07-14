@@ -108,8 +108,7 @@ class ToolManagementTest extends TestCase
                 route('admin.alat.edit', $alat->id)
             )
             ->assertSessionHasErrors([
-                'stok_total' =>
-                    'Stok total tidak boleh kurang dari 3 unit karena jumlah tersebut sedang disewa.',
+                'stok_total' => 'Stok total tidak boleh kurang dari 3 unit karena jumlah tersebut sedang disewa.',
             ]);
 
         $alat->refresh();
@@ -164,12 +163,11 @@ class ToolManagementTest extends TestCase
             ->post(
                 route('admin.alat.store'),
                 $this->validToolData([
-                    'foto_alat' =>
-                        UploadedFile::fake()->create(
-                            'dokumen.pdf',
-                            100,
-                            'application/pdf'
-                        ),
+                    'foto_alat' => UploadedFile::fake()->create(
+                        'dokumen.pdf',
+                        100,
+                        'application/pdf'
+                    ),
                 ])
             );
 
@@ -197,7 +195,7 @@ class ToolManagementTest extends TestCase
 
     private function createAdmin(): Admin
     {
-        $admin = new Admin();
+        $admin = new Admin;
 
         $admin->forceFill([
             'nama' => 'Admin Test',

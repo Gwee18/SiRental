@@ -62,21 +62,17 @@ return new class extends Migration
                         $item->customer_id
                     );
 
-                    if (!$customer) {
+                    if (! $customer) {
                         continue;
                     }
 
                     DB::table('transaksi')
                         ->where('id', $item->id)
                         ->update([
-                            'nama_peminjam' =>
-                                $customer->nama_lengkap,
-                            'email_peminjam' =>
-                                $customer->email,
-                            'no_telp_peminjam' =>
-                                $customer->no_telp,
-                            'alamat_peminjam' =>
-                                $customer->alamat,
+                            'nama_peminjam' => $customer->nama_lengkap,
+                            'email_peminjam' => $customer->email,
+                            'no_telp_peminjam' => $customer->no_telp,
+                            'alamat_peminjam' => $customer->alamat,
                         ]);
                 }
             });

@@ -50,8 +50,7 @@ class ProfileManagementTest extends TestCase
         );
         $response->assertViewHas(
             'customer',
-            fn (Customer $item) =>
-                $item->is($customer)
+            fn (Customer $item) => $item->is($customer)
         );
         $response->assertSee($customer->email);
     }
@@ -59,8 +58,7 @@ class ProfileManagementTest extends TestCase
     public function test_customer_can_update_personal_information_without_changing_email(): void
     {
         $customer = $this->createCustomer([
-            'foto_profil' =>
-                'https://example.com/avatar.jpg',
+            'foto_profil' => 'https://example.com/avatar.jpg',
         ]);
 
         $response = $this
@@ -68,11 +66,9 @@ class ProfileManagementTest extends TestCase
             ->put(
                 route('customer.profil.update'),
                 [
-                    'nama_lengkap' =>
-                        'Customer Diperbarui',
+                    'nama_lengkap' => 'Customer Diperbarui',
                     'no_telp' => '081234567890',
-                    'alamat' =>
-                        'Jl. Pengujian No. 10',
+                    'alamat' => 'Jl. Pengujian No. 10',
                 ]
             );
 
@@ -112,8 +108,8 @@ class ProfileManagementTest extends TestCase
     public function test_customer_can_replace_local_profile_photo(): void
     {
         $oldPhoto =
-            'foto-profil/testing-old-' .
-            Str::uuid() .
+            'foto-profil/testing-old-'.
+            Str::uuid().
             '.jpg';
 
         Storage::disk('public')->put(
@@ -132,16 +128,14 @@ class ProfileManagementTest extends TestCase
             ->put(
                 route('customer.profil.update'),
                 [
-                    'nama_lengkap' =>
-                        $customer->nama_lengkap,
+                    'nama_lengkap' => $customer->nama_lengkap,
                     'no_telp' => $customer->no_telp,
                     'alamat' => $customer->alamat,
-                    'foto_profil' =>
-                        UploadedFile::fake()->image(
-                            'foto-baru.jpg',
-                            400,
-                            400
-                        ),
+                    'foto_profil' => UploadedFile::fake()->image(
+                        'foto-baru.jpg',
+                        400,
+                        400
+                    ),
                 ]
             );
 
@@ -174,8 +168,7 @@ class ProfileManagementTest extends TestCase
     public function test_replacing_google_photo_does_not_treat_remote_url_as_local_file(): void
     {
         $customer = $this->createCustomer([
-            'foto_profil' =>
-                'https://example.com/google-avatar.jpg',
+            'foto_profil' => 'https://example.com/google-avatar.jpg',
         ]);
 
         $response = $this
@@ -183,16 +176,14 @@ class ProfileManagementTest extends TestCase
             ->put(
                 route('customer.profil.update'),
                 [
-                    'nama_lengkap' =>
-                        $customer->nama_lengkap,
+                    'nama_lengkap' => $customer->nama_lengkap,
                     'no_telp' => $customer->no_telp,
                     'alamat' => $customer->alamat,
-                    'foto_profil' =>
-                        UploadedFile::fake()->image(
-                            'foto-lokal.jpg',
-                            400,
-                            400
-                        ),
+                    'foto_profil' => UploadedFile::fake()->image(
+                        'foto-lokal.jpg',
+                        400,
+                        400
+                    ),
                 ]
             );
 
@@ -256,16 +247,14 @@ class ProfileManagementTest extends TestCase
             ->put(
                 route('customer.profil.update'),
                 [
-                    'nama_lengkap' =>
-                        $customer->nama_lengkap,
+                    'nama_lengkap' => $customer->nama_lengkap,
                     'no_telp' => $customer->no_telp,
                     'alamat' => $customer->alamat,
-                    'foto_profil' =>
-                        UploadedFile::fake()->create(
-                            'dokumen.pdf',
-                            100,
-                            'application/pdf'
-                        ),
+                    'foto_profil' => UploadedFile::fake()->create(
+                        'dokumen.pdf',
+                        100,
+                        'application/pdf'
+                    ),
                 ]
             );
 
@@ -292,14 +281,12 @@ class ProfileManagementTest extends TestCase
             ->put(
                 route('customer.profil.update'),
                 [
-                    'nama_lengkap' =>
-                        $customer->nama_lengkap,
+                    'nama_lengkap' => $customer->nama_lengkap,
                     'no_telp' => $customer->no_telp,
                     'alamat' => $customer->alamat,
-                    'foto_profil' =>
-                        UploadedFile::fake()
-                            ->image('foto-besar.jpg')
-                            ->size(2049),
+                    'foto_profil' => UploadedFile::fake()
+                        ->image('foto-besar.jpg')
+                        ->size(2049),
                 ]
             );
 
@@ -321,7 +308,7 @@ class ProfileManagementTest extends TestCase
     ): void {
         if (
             $path &&
-            !Str::startsWith(
+            ! Str::startsWith(
                 $path,
                 ['http://', 'https://']
             )

@@ -113,7 +113,7 @@ class ProfilController extends Controller
 
     private function localStoragePath(?string $path): ?string
     {
-        if (!$path) {
+        if (! $path) {
             return null;
         }
 

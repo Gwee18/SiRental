@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
             |--------------------------------------------------------------------------
             */
 
-            if (!$admin) {
+            if (! $admin) {
                 $view->with($notifikasi);
 
                 return;

@@ -13,6 +13,7 @@ use Illuminate\View\View;
 class AdminLoginController extends Controller
 {
     private const MAX_LOGIN_ATTEMPTS = 5;
+
     private const LOGIN_DECAY_SECONDS = 60;
 
     public function showLoginForm(): View|RedirectResponse
@@ -50,8 +51,7 @@ class AdminLoginController extends Controller
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors([
-                    'email' =>
-                        "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
+                    'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
                 ]);
         }
 
@@ -100,8 +100,8 @@ class AdminLoginController extends Controller
         string $email,
         ?string $ip
     ): string {
-        return 'admin-login:' . sha1(
-            $email . '|' . ($ip ?? 'unknown')
+        return 'admin-login:'.sha1(
+            $email.'|'.($ip ?? 'unknown')
         );
     }
 }

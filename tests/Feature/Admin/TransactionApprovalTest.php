@@ -365,31 +365,26 @@ class TransactionApprovalTest extends TestCase
 
         $transaksi = Transaksi::create([
             'customer_id' => $customer->id,
-            'kode_transaksi' => 'SR-' . strtoupper(
+            'kode_transaksi' => 'SR-'.strtoupper(
                 fake()->unique()->bothify('????????')
             ),
             'status' => $status,
-            'status_pembayaran' =>
-                $status === 'aktif'
+            'status_pembayaran' => $status === 'aktif'
                     ? Transaksi::PEMBAYARAN_SEWA_LUNAS
                     : Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_harga' => $totalHarga,
             'total_denda' => 0,
-            'total_dibayar' =>
-                $status === 'aktif'
+            'total_dibayar' => $status === 'aktif'
                     ? $totalHarga
                     : 0,
             'tanggal_pesan' => now()->toDateString(),
-            'tanggal_mulai' =>
-                $status === 'aktif'
+            'tanggal_mulai' => $status === 'aktif'
                     ? now()
                     : null,
-            'tanggal_selesai' =>
-                $status === 'aktif'
+            'tanggal_selesai' => $status === 'aktif'
                     ? now()->addDays($lamaSewa)
                     : null,
-            'dibayar_pada' =>
-                $status === 'aktif'
+            'dibayar_pada' => $status === 'aktif'
                     ? now()
                     : null,
             'denda_dibayar_pada' => null,
@@ -400,12 +395,10 @@ class TransactionApprovalTest extends TestCase
         DetailTransaksi::create([
             'transaksi_id' => $transaksi->id,
             'alat_id' => $alat->id,
-            'foto_barang' =>
-                'foto-barang/testing.jpg',
+            'foto_barang' => 'foto-barang/testing.jpg',
             'jumlah' => $jumlah,
             'lama_sewa' => $lamaSewa,
-            'harga_satuan' =>
-                (int) $alat->harga_per_hari,
+            'harga_satuan' => (int) $alat->harga_per_hari,
             'subtotal' => $totalHarga,
         ]);
 

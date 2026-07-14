@@ -82,7 +82,7 @@ class Customer extends Authenticatable
         }
 
         return 'https://ui-avatars.com/api/?name='
-            . urlencode($this->nama_lengkap)
-            . '&background=0F766E&color=fff&bold=true';
+            .urlencode($this->nama_lengkap)
+            .'&background=0F766E&color=fff&bold=true';
     }
 }

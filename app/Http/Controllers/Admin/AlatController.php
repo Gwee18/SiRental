@@ -103,8 +103,7 @@ class AlatController extends Controller
 
                 if ($stokTotalBaru < $jumlahSedangDisewa) {
                     throw ValidationException::withMessages([
-                        'stok_total' =>
-                            "Stok total tidak boleh kurang dari {$jumlahSedangDisewa} unit karena jumlah tersebut sedang disewa.",
+                        'stok_total' => "Stok total tidak boleh kurang dari {$jumlahSedangDisewa} unit karena jumlah tersebut sedang disewa.",
                     ]);
                 }
 
@@ -112,8 +111,7 @@ class AlatController extends Controller
                     'nama_alat' => $validated['nama_alat'],
                     'kategori' => $validated['kategori'],
                     'stok_total' => $stokTotalBaru,
-                    'stok_tersedia' =>
-                        $stokTotalBaru - $jumlahSedangDisewa,
+                    'stok_tersedia' => $stokTotalBaru - $jumlahSedangDisewa,
                     'harga_per_hari' => $validated['harga_per_hari'],
                     'kondisi' => $validated['kondisi'],
                     'deskripsi' => $validated['deskripsi'] ?? null,
@@ -149,7 +147,7 @@ class AlatController extends Controller
             $alat = Alat::lockForUpdate()->findOrFail($id);
 
             $alat->update([
-                'is_active' => !$alat->is_active,
+                'is_active' => ! $alat->is_active,
             ]);
 
             return $alat;

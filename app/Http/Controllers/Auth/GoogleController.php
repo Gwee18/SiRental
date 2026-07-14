@@ -51,8 +51,7 @@ class GoogleController extends Controller
                 return redirect()
                     ->route('login')
                     ->withErrors([
-                        'email' =>
-                            'Akun Google tidak memiliki identitas atau email yang valid.',
+                        'email' => 'Akun Google tidak memiliki identitas atau email yang valid.',
                     ]);
             }
 
@@ -79,13 +78,12 @@ class GoogleController extends Controller
                     if (
                         $customerByGoogle &&
                         $customerByEmail &&
-                        !$customerByGoogle->is(
+                        ! $customerByGoogle->is(
                             $customerByEmail
                         )
                     ) {
                         throw ValidationException::withMessages([
-                            'email' =>
-                                'Akun Google dan email tersebut terhubung ke dua akun customer yang berbeda. Hubungi admin.',
+                            'email' => 'Akun Google dan email tersebut terhubung ke dua akun customer yang berbeda. Hubungi admin.',
                         ]);
                     }
 
@@ -100,14 +98,12 @@ class GoogleController extends Controller
                                 $googleId
                         ) {
                             throw ValidationException::withMessages([
-                                'email' =>
-                                    'Email ini sudah terhubung ke akun Google lain.',
+                                'email' => 'Email ini sudah terhubung ke akun Google lain.',
                             ]);
                         }
 
                         $customer->update([
-                            'nama_lengkap' =>
-                                $customer->nama_lengkap ?:
+                            'nama_lengkap' => $customer->nama_lengkap ?:
                                 (
                                     $googleUser->getName() ?:
                                     $this->generateNameFromEmail(
@@ -116,11 +112,9 @@ class GoogleController extends Controller
                                 ),
                             'email' => $email,
                             'google_id' => $googleId,
-                            'foto_profil' =>
-                                $googleUser->getAvatar() ?:
+                            'foto_profil' => $googleUser->getAvatar() ?:
                                 $customer->foto_profil,
-                            'email_verified_at' =>
-                                $customer->email_verified_at ??
+                            'email_verified_at' => $customer->email_verified_at ??
                                 now(),
                         ]);
 
@@ -128,15 +122,13 @@ class GoogleController extends Controller
                     }
 
                     return Customer::create([
-                        'nama_lengkap' =>
-                            $googleUser->getName() ?:
+                        'nama_lengkap' => $googleUser->getName() ?:
                             $this->generateNameFromEmail(
                                 $email
                             ),
                         'email' => $email,
                         'google_id' => $googleId,
-                        'foto_profil' =>
-                            $googleUser->getAvatar(),
+                        'foto_profil' => $googleUser->getAvatar(),
                         'email_verified_at' => now(),
                         'password' => null,
                     ]);
@@ -159,8 +151,7 @@ class GoogleController extends Controller
             Log::error(
                 'Google login gagal.',
                 [
-                    'message' =>
-                        $exception->getMessage(),
+                    'message' => $exception->getMessage(),
                     'exception' => $exception,
                 ]
             );
@@ -168,8 +159,7 @@ class GoogleController extends Controller
             return redirect()
                 ->route('login')
                 ->withErrors([
-                    'email' =>
-                        'Gagal login dengan Google. Silakan coba lagi.',
+                    'email' => 'Gagal login dengan Google. Silakan coba lagi.',
                 ]);
         }
     }

@@ -39,7 +39,7 @@ class LaporanController extends Controller
     {
         $data = $request->validate([
             'bulan' => ['nullable', 'integer', 'between:1,12'],
-            'tahun' => ['nullable', 'integer', 'min:2020', 'max:' . now()->year],
+            'tahun' => ['nullable', 'integer', 'min:2020', 'max:'.now()->year],
         ]);
 
         return [
@@ -60,10 +60,10 @@ class LaporanController extends Controller
         );
 
         $transaksi = Transaksi::with([
-                'customer',
-                'detailTransaksi.alat',
-                'denda',
-            ])
+            'customer',
+            'detailTransaksi.alat',
+            'denda',
+        ])
             ->where('status', 'selesai')
             ->where('status_pembayaran', 'lunas')
             ->whereBetween($kolomTanggalLunas, [$awalBulan, $akhirBulan])

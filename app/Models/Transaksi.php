@@ -39,8 +39,7 @@ class Transaksi extends Model
     ];
 
     protected $attributes = [
-        'status_pembayaran' =>
-            self::PEMBAYARAN_BELUM_BAYAR,
+        'status_pembayaran' => self::PEMBAYARAN_BELUM_BAYAR,
         'total_dibayar' => 0,
     ];
 
@@ -61,14 +60,11 @@ class Transaksi extends Model
     public function getStatusPembayaranLabelAttribute(): string
     {
         return match ($this->status_pembayaran) {
-            self::PEMBAYARAN_BELUM_BAYAR =>
-                'Belum Dibayar',
+            self::PEMBAYARAN_BELUM_BAYAR => 'Belum Dibayar',
 
-            self::PEMBAYARAN_SEWA_LUNAS =>
-                'Sewa Lunas',
+            self::PEMBAYARAN_SEWA_LUNAS => 'Sewa Lunas',
 
-            self::PEMBAYARAN_LUNAS =>
-                'Lunas',
+            self::PEMBAYARAN_LUNAS => 'Lunas',
 
             default => ucfirst(
                 str_replace(

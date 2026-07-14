@@ -59,7 +59,7 @@ return new class extends Migration
                 'dibayar_pada' => DB::raw('COALESCE(tanggal_mulai, updated_at, created_at)'),
                 'denda_dibayar_pada' => DB::raw(
                     'CASE WHEN COALESCE(total_denda, 0) > 0 '
-                    . 'THEN COALESCE(updated_at, created_at) ELSE NULL END'
+                    .'THEN COALESCE(updated_at, created_at) ELSE NULL END'
                 ),
             ]);
     }

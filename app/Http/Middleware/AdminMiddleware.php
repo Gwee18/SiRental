@@ -12,7 +12,7 @@ class AdminMiddleware
         Request $request,
         Closure $next
     ): Response {
-        if (!auth('admin')->check()) {
+        if (! auth('admin')->check()) {
             if ($request->expectsJson()) {
                 abort(401, 'Unauthenticated.');
             }

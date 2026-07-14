@@ -74,7 +74,7 @@ class AccessControlTest extends TestCase
 
     private function createCustomer(): Customer
     {
-        $customer = new Customer();
+        $customer = new Customer;
 
         $customer->forceFill([
             'nama_lengkap' => 'Customer Test',
@@ -90,7 +90,7 @@ class AccessControlTest extends TestCase
 
     private function createAdmin(): Admin
     {
-        $admin = new Admin();
+        $admin = new Admin;
 
         $admin->forceFill([
             'nama' => 'Admin Test',

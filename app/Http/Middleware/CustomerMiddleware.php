@@ -12,7 +12,7 @@ class CustomerMiddleware
         Request $request,
         Closure $next
     ): Response {
-        if (!auth('web')->check()) {
+        if (! auth('web')->check()) {
             if ($request->expectsJson()) {
                 abort(401, 'Unauthenticated.');
             }

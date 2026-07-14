@@ -71,8 +71,7 @@ class RentalFlowTest extends TestCase
                 'nama_lengkap' => 'Customer Transaksi',
                 'no_telp' => '081234567890',
                 'alamat' => 'Jl. Alamat Transaksi No. 1',
-                'catatan' =>
-                    'Mohon dicek sebelum disewa.',
+                'catatan' => 'Mohon dicek sebelum disewa.',
                 'foto_ktp' => UploadedFile::fake()->image(
                     'foto-ktp.jpg'
                 ),
@@ -292,8 +291,7 @@ class RentalFlowTest extends TestCase
         $response
             ->assertRedirect(route('rental.index'))
             ->assertSessionHasErrors([
-                'alat_id.0' =>
-                    'Barang tidak tersedia atau sudah dinonaktifkan.',
+                'alat_id.0' => 'Barang tidak tersedia atau sudah dinonaktifkan.',
             ]);
 
         $this->assertDatabaseCount('transaksi', 0);

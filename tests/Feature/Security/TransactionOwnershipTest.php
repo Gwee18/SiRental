@@ -38,8 +38,7 @@ class TransactionOwnershipTest extends TestCase
         );
         $response->assertViewHas(
             'transaksi',
-            fn (Transaksi $item) =>
-                $item->is($transaksi)
+            fn (Transaksi $item) => $item->is($transaksi)
         );
     }
 
@@ -119,7 +118,7 @@ class TransactionOwnershipTest extends TestCase
                     'id',
                     $transaksiSendiri->id
                 ) &&
-                !$items->contains(
+                ! $items->contains(
                     'id',
                     $transaksiCustomerLain->id
                 );
@@ -147,8 +146,7 @@ class TransactionOwnershipTest extends TestCase
             'customer_id' => $customer->id,
             'kode_transaksi' => $kode,
             'status' => 'menunggu',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_harga' => 100000,
             'total_denda' => 0,
             'total_dibayar' => 0,

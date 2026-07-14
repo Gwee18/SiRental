@@ -94,9 +94,9 @@ return new class extends Migration
             ->first();
 
         if ($duplicateEmail) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Migration dibatalkan karena terdapat email customer duplikat setelah dinormalisasi: '
-                . $duplicateEmail->normalized_email
+                .$duplicateEmail->normalized_email
             );
         }
 
@@ -117,8 +117,7 @@ return new class extends Migration
                         ->where('id', $customer->id)
                         ->update([
                             'email' => $email,
-                            'google_id' =>
-                                $googleId !== ''
+                            'google_id' => $googleId !== ''
                                     ? $googleId
                                     : null,
                         ]);
@@ -155,9 +154,9 @@ return new class extends Migration
             ->first();
 
         if ($duplicateGoogleId) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Migration dibatalkan karena google_id digunakan oleh lebih dari satu customer: '
-                . $duplicateGoogleId->google_id
+                .$duplicateGoogleId->google_id
             );
         }
     }

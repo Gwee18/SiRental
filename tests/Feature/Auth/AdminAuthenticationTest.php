@@ -133,7 +133,7 @@ class AdminAuthenticationTest extends TestCase
 
     private function createAdmin(): Admin
     {
-        $admin = new Admin();
+        $admin = new Admin;
 
         /*
          * Model Admin memiliki cast password "hashed", sehingga

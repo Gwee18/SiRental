@@ -37,8 +37,7 @@ class DashboardReportTest extends TestCase
 
         $this->createTransaksi([
             'status' => 'menunggu',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_harga' => 100000,
             'total_denda' => 0,
             'total_dibayar' => 0,
@@ -46,8 +45,7 @@ class DashboardReportTest extends TestCase
 
         $this->createTransaksi([
             'status' => 'aktif',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_SEWA_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_SEWA_LUNAS,
             'total_harga' => 100000,
             'total_denda' => 0,
             'total_dibayar' => 100000,
@@ -55,8 +53,7 @@ class DashboardReportTest extends TestCase
 
         $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,
             'total_harga' => 120000,
             'total_denda' => 30000,
             'total_dibayar' => 150000,
@@ -68,8 +65,7 @@ class DashboardReportTest extends TestCase
          */
         $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_harga' => 999000,
             'total_denda' => 999000,
             'total_dibayar' => 999000,
@@ -115,10 +111,9 @@ class DashboardReportTest extends TestCase
             $transaksi = $this->createTransaksi(
                 [
                     'customer_id' => $customer->id,
-                    'created_at' =>
-                        now()->subMinutes(
-                            7 - $index
-                        ),
+                    'created_at' => now()->subMinutes(
+                        7 - $index
+                    ),
                 ]
             );
 
@@ -163,27 +158,22 @@ class DashboardReportTest extends TestCase
 
         $first = $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,
             'total_harga' => 100000,
             'total_denda' => 0,
             'total_dibayar' => 100000,
-            'dibayar_pada' =>
-                Carbon::create(2026, 7, 5, 10),
+            'dibayar_pada' => Carbon::create(2026, 7, 5, 10),
             'denda_dibayar_pada' => null,
         ]);
 
         $second = $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,
             'total_harga' => 120000,
             'total_denda' => 30000,
             'total_dibayar' => 150000,
-            'dibayar_pada' =>
-                Carbon::create(2026, 7, 2, 10),
-            'denda_dibayar_pada' =>
-                Carbon::create(2026, 7, 10, 10),
+            'dibayar_pada' => Carbon::create(2026, 7, 2, 10),
+            'denda_dibayar_pada' => Carbon::create(2026, 7, 10, 10),
         ]);
 
         /*
@@ -192,48 +182,40 @@ class DashboardReportTest extends TestCase
          */
         $legacy = $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,
             'total_harga' => 80000,
             'total_denda' => 10000,
             'total_dibayar' => 90000,
             'dibayar_pada' => null,
             'denda_dibayar_pada' => null,
-            'updated_at' =>
-                Carbon::create(2026, 7, 8, 10),
+            'updated_at' => Carbon::create(2026, 7, 8, 10),
         ]);
 
         $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,
             'total_harga' => 500000,
             'total_denda' => 0,
             'total_dibayar' => 500000,
-            'dibayar_pada' =>
-                Carbon::create(2026, 6, 30, 23),
+            'dibayar_pada' => Carbon::create(2026, 6, 30, 23),
         ]);
 
         $this->createTransaksi([
             'status' => 'aktif',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_SEWA_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_SEWA_LUNAS,
             'total_harga' => 600000,
             'total_denda' => 0,
             'total_dibayar' => 600000,
-            'dibayar_pada' =>
-                Carbon::create(2026, 7, 11, 10),
+            'dibayar_pada' => Carbon::create(2026, 7, 11, 10),
         ]);
 
         $this->createTransaksi([
             'status' => 'selesai',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_harga' => 700000,
             'total_denda' => 0,
             'total_dibayar' => 0,
-            'updated_at' =>
-                Carbon::create(2026, 7, 12, 10),
+            'updated_at' => Carbon::create(2026, 7, 12, 10),
         ]);
 
         $response = $this
@@ -382,7 +364,7 @@ class DashboardReportTest extends TestCase
 
     private function createAdmin(): Admin
     {
-        $admin = new Admin();
+        $admin = new Admin;
 
         $admin->forceFill([
             'nama' => 'Admin Test',
@@ -403,23 +385,19 @@ class DashboardReportTest extends TestCase
         $number++;
 
         return Customer::create([
-            'nama_lengkap' =>
-                "Customer {$number}",
-            'email' =>
-                $email ??
+            'nama_lengkap' => "Customer {$number}",
+            'email' => $email ??
                 "customer{$number}@example.com",
             'email_verified_at' => now(),
             'password' => null,
-            'no_telp' =>
-                '0812345678' .
+            'no_telp' => '0812345678'.
                 str_pad(
                     (string) $number,
                     2,
                     '0',
                     STR_PAD_LEFT
                 ),
-            'alamat' =>
-                "Jl. Customer No. {$number}",
+            'alamat' => "Jl. Customer No. {$number}",
         ]);
     }
 
@@ -434,8 +412,7 @@ class DashboardReportTest extends TestCase
             'stok_tersedia' => 10,
             'harga_per_hari' => 50000,
             'kondisi' => 'baik',
-            'deskripsi' =>
-                'Alat untuk pengujian dashboard.',
+            'deskripsi' => 'Alat untuk pengujian dashboard.',
             'foto_alat' => null,
             'is_active' => $active,
         ]);
@@ -470,22 +447,17 @@ class DashboardReportTest extends TestCase
         $transaksi = Transaksi::create(
             array_merge([
                 'customer_id' => $customerId,
-                'nama_peminjam' =>
-                    "Peminjam {$number}",
-                'email_peminjam' =>
-                    "peminjam{$number}@example.com",
-                'no_telp_peminjam' =>
-                    '0890000000' .
+                'nama_peminjam' => "Peminjam {$number}",
+                'email_peminjam' => "peminjam{$number}@example.com",
+                'no_telp_peminjam' => '0890000000'.
                     str_pad(
                         (string) $number,
                         2,
                         '0',
                         STR_PAD_LEFT
                     ),
-                'alamat_peminjam' =>
-                    "Jl. Rental No. {$number}",
-                'kode_transaksi' =>
-                    'TRX-TEST-' .
+                'alamat_peminjam' => "Jl. Rental No. {$number}",
+                'kode_transaksi' => 'TRX-TEST-'.
                     str_pad(
                         (string) $number,
                         4,
@@ -493,13 +465,11 @@ class DashboardReportTest extends TestCase
                         STR_PAD_LEFT
                     ),
                 'status' => 'menunggu',
-                'status_pembayaran' =>
-                    Transaksi::PEMBAYARAN_BELUM_BAYAR,
+                'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
                 'total_harga' => 100000,
                 'total_denda' => 0,
                 'total_dibayar' => 0,
-                'tanggal_pesan' =>
-                    now()->toDateString(),
+                'tanggal_pesan' => now()->toDateString(),
                 'tanggal_mulai' => null,
                 'tanggal_selesai' => null,
                 'dibayar_pada' => null,

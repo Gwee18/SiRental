@@ -1,17 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\Auth\GoogleController;
-use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\AlatController;
-use App\Http\Controllers\Admin\TransaksiController as AdminTransaksiController;
-use App\Http\Controllers\Admin\PelangganController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\PelangganController;
+use App\Http\Controllers\Admin\TransaksiController as AdminTransaksiController;
+use App\Http\Controllers\Auth\AdminLoginController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Customer\HomeController;
+use App\Http\Controllers\Customer\ProfilController;
 use App\Http\Controllers\Customer\RentalController;
 use App\Http\Controllers\Customer\TransaksiController as CustomerTransaksiController;
-use App\Http\Controllers\Customer\ProfilController;
+use Illuminate\Support\Facades\Route;
 
 // =====================
 // ROUTE PUBLIK
@@ -31,12 +32,12 @@ Route::get('/kebijakan-privasi', function () {
 // ROUTE AUTH CUSTOMER
 // =====================
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'sendOtp'])->name('login.send-otp');
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'sendOtp'])->name('login.send-otp');
 
-    Route::get('/login/verifikasi', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'showVerifyForm'])->name('login.verify');
-    Route::post('/login/verifikasi', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'verifyOtp'])->name('login.verify.post');
-    Route::post('/login/kirim-ulang', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'resendOtp'])->name('login.resend');
+    Route::get('/login/verifikasi', [AuthenticatedSessionController::class, 'showVerifyForm'])->name('login.verify');
+    Route::post('/login/verifikasi', [AuthenticatedSessionController::class, 'verifyOtp'])->name('login.verify.post');
+    Route::post('/login/kirim-ulang', [AuthenticatedSessionController::class, 'resendOtp'])->name('login.resend');
 
     Route::get('/register', function () {
         return redirect()->route('login');
@@ -47,7 +48,7 @@ Route::middleware('guest')->group(function () {
     });
 });
 
-Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->name('logout');
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
 // =====================
 // LOGIN GOOGLE

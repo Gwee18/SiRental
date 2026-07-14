@@ -76,8 +76,7 @@ class AuthenticatedSessionController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'email' =>
-                        "Terlalu banyak permintaan kode. " .
+                    'email' => 'Terlalu banyak permintaan kode. '.
                         "Coba lagi dalam {$seconds} detik.",
                 ]);
         }
@@ -100,8 +99,7 @@ class AuthenticatedSessionController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'email' =>
-                        'Kode sudah dikirim. Tunggu 60 detik ' .
+                    'email' => 'Kode sudah dikirim. Tunggu 60 detik '.
                         'sebelum meminta kode baru.',
                 ]);
         }
@@ -132,11 +130,11 @@ class AuthenticatedSessionController extends Controller
 
         try {
             Mail::raw(
-                "Kode verifikasi SiRental Anda adalah: " .
-                "{$code}\n\nKode ini berlaku selama " .
-                self::OTP_EXPIRE_MINUTES .
-                " menit. Jangan bagikan kode ini " .
-                "kepada siapa pun.",
+                'Kode verifikasi SiRental Anda adalah: '.
+                "{$code}\n\nKode ini berlaku selama ".
+                self::OTP_EXPIRE_MINUTES.
+                ' menit. Jangan bagikan kode ini '.
+                'kepada siapa pun.',
                 function ($message) use ($email): void {
                     $message
                         ->to($email)
@@ -153,8 +151,7 @@ class AuthenticatedSessionController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'email' =>
-                        'Gagal mengirim kode verifikasi. ' .
+                    'email' => 'Gagal mengirim kode verifikasi. '.
                         'Periksa konfigurasi email aplikasi.',
                 ]);
         }
@@ -196,7 +193,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if (
-            !$request->session()->has(
+            ! $request->session()->has(
                 'otp_email'
             )
         ) {
@@ -228,7 +225,7 @@ class AuthenticatedSessionController extends Controller
             'otp_email'
         );
 
-        if (!$email) {
+        if (! $email) {
             return redirect()->route('login');
         }
 
@@ -248,9 +245,8 @@ class AuthenticatedSessionController extends Controller
             );
 
             return back()->withErrors([
-                'code' =>
-                    "Terlalu banyak percobaan. " .
-                    "Coba lagi dalam {$seconds} detik " .
+                'code' => 'Terlalu banyak percobaan. '.
+                    "Coba lagi dalam {$seconds} detik ".
                     'atau kirim kode baru.',
             ]);
         }
@@ -269,18 +265,16 @@ class AuthenticatedSessionController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                if (!$otp) {
+                if (! $otp) {
                     return [
-                        'error' =>
-                            'Kode verifikasi tidak ditemukan. ' .
+                        'error' => 'Kode verifikasi tidak ditemukan. '.
                             'Silakan kirim ulang kode.',
                     ];
                 }
 
                 if ($otp->expires_at->isPast()) {
                     return [
-                        'error' =>
-                            'Kode verifikasi sudah kedaluwarsa. ' .
+                        'error' => 'Kode verifikasi sudah kedaluwarsa. '.
                             'Silakan kirim ulang kode.',
                     ];
                 }
@@ -290,14 +284,13 @@ class AuthenticatedSessionController extends Controller
                     self::MAX_VERIFY_ATTEMPTS
                 ) {
                     return [
-                        'error' =>
-                            'Terlalu banyak percobaan. ' .
+                        'error' => 'Terlalu banyak percobaan. '.
                             'Silakan kirim ulang kode.',
                     ];
                 }
 
                 if (
-                    !Hash::check(
+                    ! Hash::check(
                         $validated['code'],
                         $otp->code_hash
                     )
@@ -305,8 +298,7 @@ class AuthenticatedSessionController extends Controller
                     $otp->increment('attempts');
 
                     return [
-                        'error' =>
-                            'Kode verifikasi tidak sesuai.',
+                        'error' => 'Kode verifikasi tidak sesuai.',
                     ];
                 }
 
@@ -321,18 +313,17 @@ class AuthenticatedSessionController extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                if (!$customer) {
+                if (! $customer) {
                     $customer = Customer::create([
-                        'nama_lengkap' =>
-                            $this->generateNameFromEmail(
-                                $email
-                            ),
+                        'nama_lengkap' => $this->generateNameFromEmail(
+                            $email
+                        ),
                         'email' => $email,
                         'email_verified_at' => now(),
                         'password' => null,
                     ]);
                 } elseif (
-                    !$customer->email_verified_at
+                    ! $customer->email_verified_at
                 ) {
                     $customer->update([
                         'email_verified_at' => now(),
@@ -384,7 +375,7 @@ class AuthenticatedSessionController extends Controller
             'otp_email'
         );
 
-        if (!$email) {
+        if (! $email) {
             return redirect()->route('login');
         }
 
@@ -411,8 +402,8 @@ class AuthenticatedSessionController extends Controller
         string $email,
         ?string $ip
     ): string {
-        return 'otp-send:' . sha1(
-            $email . '|' . ($ip ?? 'unknown')
+        return 'otp-send:'.sha1(
+            $email.'|'.($ip ?? 'unknown')
         );
     }
 
@@ -420,8 +411,8 @@ class AuthenticatedSessionController extends Controller
         string $email,
         ?string $ip
     ): string {
-        return 'otp-verify:' . sha1(
-            $email . '|' . ($ip ?? 'unknown')
+        return 'otp-verify:'.sha1(
+            $email.'|'.($ip ?? 'unknown')
         );
     }
 

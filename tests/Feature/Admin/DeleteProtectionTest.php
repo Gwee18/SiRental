@@ -222,7 +222,7 @@ class DeleteProtectionTest extends TestCase
 
     private function createAdmin(): Admin
     {
-        $admin = new Admin();
+        $admin = new Admin;
 
         $admin->forceFill([
             'nama' => 'Admin Test',
@@ -239,7 +239,7 @@ class DeleteProtectionTest extends TestCase
         string $email,
         ?string $fotoProfil = null
     ): Customer {
-        $customer = new Customer();
+        $customer = new Customer;
 
         $customer->forceFill([
             'nama_lengkap' => 'Customer Test',
@@ -275,12 +275,11 @@ class DeleteProtectionTest extends TestCase
     ): Transaksi {
         return Transaksi::create([
             'customer_id' => $customer->id,
-            'kode_transaksi' => 'SR-' . strtoupper(
+            'kode_transaksi' => 'SR-'.strtoupper(
                 fake()->unique()->bothify('????????')
             ),
             'status' => 'menunggu',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_harga' => 100000,
             'total_denda' => 0,
             'total_dibayar' => 0,
@@ -297,8 +296,7 @@ class DeleteProtectionTest extends TestCase
         return DetailTransaksi::create([
             'transaksi_id' => $transaksi->id,
             'alat_id' => $alat->id,
-            'foto_barang' =>
-                'foto-barang/testing.jpg',
+            'foto_barang' => 'foto-barang/testing.jpg',
             'jumlah' => 1,
             'lama_sewa' => 2,
             'harga_satuan' => 50000,

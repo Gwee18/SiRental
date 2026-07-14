@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 class UseRoleSessionCookie
 {
     private const ADMIN_COOKIE = 'sirental_admin_session';
+
     private const CUSTOMER_COOKIE = 'sirental_customer_session';
 
     public function handle(

@@ -21,16 +21,16 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'no_telp'      => ['required', 'string', 'max:20'],
-            'email'        => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
-            'password'     => ['required', 'confirmed', Rules\Password::defaults()],
+            'no_telp' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         Customer::create([
             'nama_lengkap' => $request->nama_lengkap,
-            'no_telp'      => $request->no_telp,
-            'email'        => $request->email,
-            'password'     => Hash::make($request->password),
+            'no_telp' => $request->no_telp,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
         return redirect()->route('login')->with(

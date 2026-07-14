@@ -373,8 +373,7 @@ class ReturnFlowTest extends TestCase
             );
 
         $transaksi->update([
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_BELUM_BAYAR,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
             'total_dibayar' => 0,
             'dibayar_pada' => null,
         ]);
@@ -449,13 +448,11 @@ class ReturnFlowTest extends TestCase
             'customer_id' => $customer->id,
             'kode_transaksi' => 'SR-RETURN01',
             'status' => 'aktif',
-            'status_pembayaran' =>
-                Transaksi::PEMBAYARAN_SEWA_LUNAS,
+            'status_pembayaran' => Transaksi::PEMBAYARAN_SEWA_LUNAS,
             'total_harga' => 200000,
             'total_denda' => 0,
             'total_dibayar' => 200000,
-            'tanggal_pesan' =>
-                $tanggalMulai->toDateString(),
+            'tanggal_pesan' => $tanggalMulai->toDateString(),
             'tanggal_mulai' => $tanggalMulai,
             'tanggal_selesai' => $tanggalSelesai,
             'dibayar_pada' => $tanggalMulai,
@@ -467,8 +464,7 @@ class ReturnFlowTest extends TestCase
         $detail = DetailTransaksi::create([
             'transaksi_id' => $transaksi->id,
             'alat_id' => $alat->id,
-            'foto_barang' =>
-                'foto-barang/testing.jpg',
+            'foto_barang' => 'foto-barang/testing.jpg',
             'jumlah' => 2,
             'lama_sewa' => 2,
             'harga_satuan' => 50000,

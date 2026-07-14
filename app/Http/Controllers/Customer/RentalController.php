@@ -154,9 +154,9 @@ class RentalController extends Controller
             }
 
             $alat = Alat::whereIn(
-                    'id',
-                    $request->input('alat_id', [])
-                )
+                'id',
+                $request->input('alat_id', [])
+            )
                 ->get()
                 ->keyBy('id');
 
@@ -164,7 +164,7 @@ class RentalController extends Controller
                 $item = $alat->get((int) $alatId);
                 $jumlahDiminta = (int) ($request->jumlah[$index] ?? 0);
 
-                if (!$item || !$item->is_active) {
+                if (! $item || ! $item->is_active) {
                     $validator->errors()->add(
                         'alat_id',
                         'Salah satu barang sudah tidak tersedia.'
@@ -233,17 +233,15 @@ class RentalController extends Controller
                     $item = $alat->get($alatId);
                     $jumlah = (int) $request->jumlah[$index];
 
-                    if (!$item || !$item->is_active) {
+                    if (! $item || ! $item->is_active) {
                         throw ValidationException::withMessages([
-                            'alat_id' =>
-                                'Salah satu barang sudah dinonaktifkan. Silakan pilih ulang barang rental.',
+                            'alat_id' => 'Salah satu barang sudah dinonaktifkan. Silakan pilih ulang barang rental.',
                         ]);
                     }
 
                     if ($item->stok_tersedia < $jumlah) {
                         throw ValidationException::withMessages([
-                            'stok' =>
-                                "Stok {$item->nama_alat} tidak mencukupi. Stok tersedia hanya {$item->stok_tersedia}.",
+                            'stok' => "Stok {$item->nama_alat} tidak mencukupi. Stok tersedia hanya {$item->stok_tersedia}.",
                         ]);
                     }
                 }
@@ -256,12 +254,9 @@ class RentalController extends Controller
 
                 if ($request->boolean('simpan_ke_profil')) {
                     $customer->update([
-                        'nama_lengkap' =>
-                            $request->nama_lengkap,
-                        'no_telp' =>
-                            $request->no_telp,
-                        'alamat' =>
-                            $request->alamat,
+                        'nama_lengkap' => $request->nama_lengkap,
+                        'no_telp' => $request->no_telp,
+                        'alamat' => $request->alamat,
                     ]);
                 }
 
@@ -280,16 +275,11 @@ class RentalController extends Controller
 
                 $transaksi = Transaksi::create([
                     'customer_id' => $customer->id,
-                    'nama_peminjam' =>
-                        $request->nama_lengkap,
-                    'email_peminjam' =>
-                        $customer->email,
-                    'no_telp_peminjam' =>
-                        $request->no_telp,
-                    'alamat_peminjam' =>
-                        $request->alamat,
-                    'kode_transaksi' =>
-                        'SR-' . strtoupper(Str::random(8)),
+                    'nama_peminjam' => $request->nama_lengkap,
+                    'email_peminjam' => $customer->email,
+                    'no_telp_peminjam' => $request->no_telp,
+                    'alamat_peminjam' => $request->alamat,
+                    'kode_transaksi' => 'SR-'.strtoupper(Str::random(8)),
                     'status' => 'menunggu',
                     'status_pembayaran' => 'belum_bayar',
                     'total_harga' => $totalHarga,

@@ -7,7 +7,6 @@ use App\Models\EmailOtp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
 class OtpSecurityTest extends TestCase
@@ -28,12 +27,10 @@ class OtpSecurityTest extends TestCase
         $response = $this
             ->from(route('login'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->post(route('login.send-otp'), [
-                'email' =>
-                    '  USER.NORMALIZED@EXAMPLE.COM  ',
+                'email' => '  USER.NORMALIZED@EXAMPLE.COM  ',
             ]);
 
         $response
@@ -48,8 +45,7 @@ class OtpSecurityTest extends TestCase
         $this->assertDatabaseHas(
             'email_otps',
             [
-                'email' =>
-                    'user.normalized@example.com',
+                'email' => 'user.normalized@example.com',
                 'attempts' => 0,
                 'used_at' => null,
             ]
@@ -73,8 +69,7 @@ class OtpSecurityTest extends TestCase
         $response = $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -118,8 +113,7 @@ class OtpSecurityTest extends TestCase
         $response = $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -170,8 +164,7 @@ class OtpSecurityTest extends TestCase
         $code = '123456';
 
         $customer = Customer::create([
-            'nama_lengkap' =>
-                'One Time Customer',
+            'nama_lengkap' => 'One Time Customer',
             'email' => $email,
             'email_verified_at' => now(),
             'password' => null,
@@ -184,8 +177,7 @@ class OtpSecurityTest extends TestCase
 
         $firstResponse = $this
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -213,8 +205,7 @@ class OtpSecurityTest extends TestCase
         $secondResponse = $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -257,8 +248,7 @@ class OtpSecurityTest extends TestCase
             $response = $this
                 ->from(route('login.verify'))
                 ->withServerVariables([
-                    'REMOTE_ADDR' =>
-                        self::IP_ADDRESS,
+                    'REMOTE_ADDR' => self::IP_ADDRESS,
                 ])
                 ->withSession([
                     'otp_email' => $email,
@@ -281,8 +271,7 @@ class OtpSecurityTest extends TestCase
         $blockedResponse = $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -325,8 +314,7 @@ class OtpSecurityTest extends TestCase
         for ($attempt = 1; $attempt <= 5; $attempt++) {
             $this
                 ->withServerVariables([
-                    'REMOTE_ADDR' =>
-                        self::IP_ADDRESS,
+                    'REMOTE_ADDR' => self::IP_ADDRESS,
                 ])
                 ->withSession([
                     'otp_email' => $email,
@@ -348,8 +336,7 @@ class OtpSecurityTest extends TestCase
         $resendResponse = $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -384,8 +371,7 @@ class OtpSecurityTest extends TestCase
         $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $email,
@@ -412,8 +398,7 @@ class OtpSecurityTest extends TestCase
             $response = $this
                 ->from(route('login'))
                 ->withServerVariables([
-                    'REMOTE_ADDR' =>
-                        self::IP_ADDRESS,
+                    'REMOTE_ADDR' => self::IP_ADDRESS,
                 ])
                 ->post(
                     route('login.send-otp'),
@@ -435,8 +420,7 @@ class OtpSecurityTest extends TestCase
                 )->first();
 
                 $otp->forceFill([
-                    'created_at' =>
-                        now()->subSeconds(61),
+                    'created_at' => now()->subSeconds(61),
                 ])->saveQuietly();
             }
         }
@@ -444,8 +428,7 @@ class OtpSecurityTest extends TestCase
         $blockedResponse = $this
             ->from(route('login'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->post(
                 route('login.send-otp'),
@@ -478,8 +461,7 @@ class OtpSecurityTest extends TestCase
         $response = $this
             ->from(route('login.verify'))
             ->withServerVariables([
-                'REMOTE_ADDR' =>
-                    self::IP_ADDRESS,
+                'REMOTE_ADDR' => self::IP_ADDRESS,
             ])
             ->withSession([
                 'otp_email' => $otherEmail,

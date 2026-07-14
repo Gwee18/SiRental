@@ -14,14 +14,15 @@ use RuntimeException;
 class TransaksiController extends Controller
 {
     private const JAM_TOLERANSI = 2;
+
     private const PERSENTASE_DENDA = 1.00;
 
     public function index()
     {
         $transaksi = Transaksi::with([
-                'customer',
-                'detailTransaksi',
-            ])
+            'customer',
+            'detailTransaksi',
+        ])
             ->withSum('detailTransaksi as jumlah_item', 'jumlah')
             ->orderBy('created_at', 'desc')
             ->get();
@@ -32,10 +33,10 @@ class TransaksiController extends Controller
     public function show($id)
     {
         $transaksi = Transaksi::with([
-                'customer',
-                'detailTransaksi.alat',
-                'denda',
-            ])
+            'customer',
+            'detailTransaksi.alat',
+            'denda',
+        ])
             ->findOrFail($id);
 
         return view('admin.transaksi.detail', compact('transaksi'));
@@ -68,24 +69,24 @@ class TransaksiController extends Controller
                         ->lockForUpdate()
                         ->find($detail->alat_id);
 
-                    if (!$alat) {
+                    if (! $alat) {
                         throw new RuntimeException(
                             'Ada alat yang tidak ditemukan pada transaksi ini.'
                         );
                     }
 
-                    if (!$alat->is_active) {
+                    if (! $alat->is_active) {
                         throw new RuntimeException(
-                            'Pesanan tidak dapat dikonfirmasi karena ' .
-                            $alat->nama_alat .
+                            'Pesanan tidak dapat dikonfirmasi karena '.
+                            $alat->nama_alat.
                             ' sedang dinonaktifkan.'
                         );
                     }
 
                     if ($alat->stok_tersedia < $detail->jumlah) {
                         throw new RuntimeException(
-                            'Stok ' . $alat->nama_alat
-                            . ' tidak mencukupi untuk dikonfirmasi.'
+                            'Stok '.$alat->nama_alat
+                            .' tidak mencukupi untuk dikonfirmasi.'
                         );
                     }
 
@@ -184,9 +185,9 @@ class TransaksiController extends Controller
                 $pembayaranDendaDikonfirmasi
             ) {
                 $transaksi = Transaksi::with([
-                        'detailTransaksi',
-                        'denda',
-                    ])
+                    'detailTransaksi',
+                    'denda',
+                ])
                     ->lockForUpdate()
                     ->findOrFail($id);
 
@@ -230,7 +231,7 @@ class TransaksiController extends Controller
                 if ($totalDenda > 0) {
                     if (
                         $source !== 'pengembalian'
-                        || !$pembayaranDendaDikonfirmasi
+                        || ! $pembayaranDendaDikonfirmasi
                     ) {
                         throw new RuntimeException(
                             'Konfirmasi bahwa pembayaran denda sudah diterima sebelum transaksi diselesaikan.'
@@ -245,8 +246,7 @@ class TransaksiController extends Controller
                             'hari_terlambat' => $hariTerlambat,
                             'denda_per_hari' => $dendaPerHari,
                             'total_denda' => $totalDenda,
-                            'keterangan' =>
-                                "Terlambat {$hariTerlambat} periode setelah masa toleransi",
+                            'keterangan' => "Terlambat {$hariTerlambat} periode setelah masa toleransi",
                         ]
                     );
                 } elseif ($transaksi->denda) {
@@ -321,12 +321,11 @@ class TransaksiController extends Controller
             $kode
         )->first();
 
-        if (!$transaksi) {
+        if (! $transaksi) {
             return redirect()
                 ->back()
                 ->withErrors([
-                    'kode_transaksi' =>
-                        'Transaksi dengan kode tersebut tidak ditemukan.',
+                    'kode_transaksi' => 'Transaksi dengan kode tersebut tidak ditemukan.',
                 ])
                 ->withInput();
         }
@@ -335,8 +334,7 @@ class TransaksiController extends Controller
             return redirect()
                 ->back()
                 ->withErrors([
-                    'kode_transaksi' =>
-                        'Transaksi ini belum aktif. Pengembalian hanya bisa dilakukan setelah transaksi dikonfirmasi admin.',
+                    'kode_transaksi' => 'Transaksi ini belum aktif. Pengembalian hanya bisa dilakukan setelah transaksi dikonfirmasi admin.',
                 ])
                 ->withInput();
         }
@@ -345,8 +343,7 @@ class TransaksiController extends Controller
             return redirect()
                 ->back()
                 ->withErrors([
-                    'kode_transaksi' =>
-                        'Transaksi ini sudah ditolak dan tidak bisa diproses pengembaliannya.',
+                    'kode_transaksi' => 'Transaksi ini sudah ditolak dan tidak bisa diproses pengembaliannya.',
                 ])
                 ->withInput();
         }
@@ -355,8 +352,7 @@ class TransaksiController extends Controller
             return redirect()
                 ->back()
                 ->withErrors([
-                    'kode_transaksi' =>
-                        'Transaksi ini sudah selesai.',
+                    'kode_transaksi' => 'Transaksi ini sudah selesai.',
                 ])
                 ->withInput();
         }
@@ -370,10 +366,10 @@ class TransaksiController extends Controller
     public function detailPengembalian($kode)
     {
         $transaksi = Transaksi::with([
-                'customer',
-                'detailTransaksi.alat',
-                'denda',
-            ])
+            'customer',
+            'detailTransaksi.alat',
+            'denda',
+        ])
             ->where('kode_transaksi', strtoupper($kode))
             ->firstOrFail();
 
@@ -387,8 +383,8 @@ class TransaksiController extends Controller
         }
 
         if (
-            !$transaksi->tanggal_mulai
-            || !$transaksi->tanggal_selesai
+            ! $transaksi->tanggal_mulai
+            || ! $transaksi->tanggal_selesai
         ) {
             return redirect()
                 ->route('admin.pengembalian.index')
@@ -433,16 +429,11 @@ class TransaksiController extends Controller
                 'batasKembali' => $batasKembali,
                 'batasToleransi' => $batasToleransi,
                 'jamToleransi' => self::JAM_TOLERANSI,
-                'totalSewaHarian' =>
-                    $perhitunganDenda['totalSewaHarian'],
-                'dendaPerHari' =>
-                    $perhitunganDenda['dendaPerHari'],
-                'hariTerlambat' =>
-                    $perhitunganDenda['hariTerlambat'],
-                'menitTerlambat' =>
-                    $perhitunganDenda['menitTerlambat'],
-                'estimasiDenda' =>
-                    $perhitunganDenda['estimasiDenda'],
+                'totalSewaHarian' => $perhitunganDenda['totalSewaHarian'],
+                'dendaPerHari' => $perhitunganDenda['dendaPerHari'],
+                'hariTerlambat' => $perhitunganDenda['hariTerlambat'],
+                'menitTerlambat' => $perhitunganDenda['menitTerlambat'],
+                'estimasiDenda' => $perhitunganDenda['estimasiDenda'],
             ]
         );
     }
@@ -463,7 +454,7 @@ class TransaksiController extends Controller
         $menitTerlambat = 0;
         $estimasiDenda = 0;
 
-        if (!$transaksi->tanggal_selesai) {
+        if (! $transaksi->tanggal_selesai) {
             return [
                 'totalSewaHarian' => $totalSewaHarian,
                 'dendaPerHari' => $dendaPerHari,
