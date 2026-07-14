@@ -230,14 +230,24 @@ Kemudian jalankan:
 php artisan config:clear
 ```
 
-## Login admin lokal
+## Konfigurasi akun admin
 
-Seeder membuat akun admin untuk pengembangan lokal:
+Kredensial admin dibaca dari file `.env`:
 
-```text
-Email    : admin@sirental.com
-Password : admin123
+```env
+ADMIN_NAME="Admin SiRental"
+ADMIN_EMAIL=admin@sirental.com
+ADMIN_PASSWORD=admin123
 ```
+
+Buat atau perbarui akun admin melalui:
+
+```bash
+php artisan db:seed --class=AdminSeeder
+```
+
+Seeder dapat dijalankan berulang kali tanpa membuat akun duplikat. Akun dengan
+email yang sama akan diperbarui.
 
 Halaman login admin:
 
@@ -245,8 +255,9 @@ Halaman login admin:
 http://127.0.0.1:8000/admin/login
 ```
 
-Ubah kredensial bawaan sebelum menggunakan aplikasi pada lingkungan publik
-atau produksi.
+Password `admin123` hanya untuk pengembangan lokal. Seeder akan menolak
+password tersebut ketika aplikasi memakai environment `production`. Gunakan
+password unik minimal delapan karakter sebelum deployment.
 
 ## Menjalankan test
 
