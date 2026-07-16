@@ -13,8 +13,15 @@ return new class extends Migration
             $table->string('email')->index();
             $table->string('code_hash');
             $table->unsignedTinyInteger('attempts')->default(0);
-            $table->timestamp('expires_at');
-            $table->timestamp('used_at')->nullable();
+
+            /*
+             * DATETIME dipakai agar MariaDB lama tidak memberikan
+             * ON UPDATE CURRENT_TIMESTAMP secara otomatis kepada
+             * kolom waktu kedaluwarsa.
+             */
+            $table->dateTime('expires_at');
+            $table->dateTime('used_at')->nullable();
+
             $table->timestamps();
         });
     }
