@@ -348,11 +348,7 @@
         const maxFileSize = 2 * 1024 * 1024;
 
         button.addEventListener('click', function () {
-            /*
-             * Tanpa atribut capture:
-             * - laptop/PC membuka File Explorer;
-             * - HP membuka pemilih kamera/galeri/file bawaan sistem.
-             */
+
             input.removeAttribute('capture');
             input.click();
         });

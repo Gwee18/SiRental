@@ -19,6 +19,7 @@ class Transaksi extends Model
 
     protected $fillable = [
         'customer_id',
+        'request_token',
         'nama_peminjam',
         'email_peminjam',
         'no_telp_peminjam',

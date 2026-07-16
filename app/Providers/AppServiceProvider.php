@@ -10,17 +10,8 @@ use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        //
-    }
+    public function register(): void {}
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         View::composer('layouts.admin', function ($view) {
@@ -32,27 +23,11 @@ class AppServiceProvider extends ServiceProvider
 
             $admin = Auth::guard('admin')->user();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Jika admin belum login
-            |--------------------------------------------------------------------------
-            */
-
             if (! $admin) {
                 $view->with($notifikasi);
 
                 return;
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Hitung pesanan baru
-            |--------------------------------------------------------------------------
-            |
-            | Pesanan baru hanya menghitung transaksi dengan status menunggu yang
-            | dibuat setelah admin terakhir membuka halaman transaksi.
-            |
-            */
 
             $transaksiBaruQuery = Transaksi::query()
                 ->where('status', 'menunggu');
@@ -67,16 +42,6 @@ class AppServiceProvider extends ServiceProvider
 
             $jumlahTransaksiBaru = $transaksiBaruQuery->count();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Hitung pelanggan baru
-            |--------------------------------------------------------------------------
-            |
-            | Pelanggan baru dihitung berdasarkan akun customer yang dibuat setelah
-            | admin terakhir membuka halaman pelanggan.
-            |
-            */
-
             $pelangganBaruQuery = Customer::query();
 
             if ($admin->last_seen_pelanggan_at) {
@@ -89,16 +54,6 @@ class AppServiceProvider extends ServiceProvider
 
             $jumlahPelangganBaru = $pelangganBaruQuery->count();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Tandai pesanan sudah dilihat
-            |--------------------------------------------------------------------------
-            |
-            | Ketika admin membuka halaman Konfirmasi Peminjaman, waktu terakhir
-            | dilihat diperbarui dan titik merah langsung dihilangkan.
-            |
-            */
-
             if (request()->routeIs('admin.transaksi.index')) {
                 $admin->forceFill([
                     'last_seen_transaksi_at' => now(),
@@ -107,12 +62,6 @@ class AppServiceProvider extends ServiceProvider
                 $jumlahTransaksiBaru = 0;
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Tandai pelanggan sudah dilihat
-            |--------------------------------------------------------------------------
-            */
-
             if (request()->routeIs('admin.pelanggan.index')) {
                 $admin->forceFill([
                     'last_seen_pelanggan_at' => now(),
@@ -120,12 +69,6 @@ class AppServiceProvider extends ServiceProvider
 
                 $jumlahPelangganBaru = 0;
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | Bagikan data notifikasi ke layout admin
-            |--------------------------------------------------------------------------
-            */
 
             $notifikasi = [
                 'adminNotifikasiTransaksiBaru' => $jumlahTransaksiBaru,

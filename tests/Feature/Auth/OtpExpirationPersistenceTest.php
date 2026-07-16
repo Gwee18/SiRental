@@ -96,10 +96,6 @@ class OtpExpirationPersistenceTest extends TestCase
             (int) $otp->attempts
         );
 
-        /*
-         * Ini assertion terpenting: menambah attempts tidak boleh
-         * mengubah expires_at.
-         */
         $this->assertTrue(
             $otp->expires_at->equalTo($expiresAt)
         );

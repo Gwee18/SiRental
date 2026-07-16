@@ -17,14 +17,11 @@ class DashboardController extends Controller
         $transaksiMenunggu = Transaksi::where('status', 'menunggu')->count();
         $transaksiAktif = Transaksi::where('status', 'aktif')->count();
 
-        // Seluruh uang yang benar-benar sudah diterima, termasuk biaya sewa
-        // transaksi aktif dan denda transaksi yang sudah selesai.
         $totalPendapatan = (int) Transaksi::whereIn(
             'status_pembayaran',
             ['sewa_lunas', 'lunas']
         )->sum('total_dibayar');
 
-        // Denda hanya dianggap terkumpul setelah transaksi selesai dan lunas.
         $totalDenda = (int) Transaksi::where('status', 'selesai')
             ->where('status_pembayaran', 'lunas')
             ->sum('total_denda');

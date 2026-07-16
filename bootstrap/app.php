@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\CustomerMiddleware;
+use App\Http\Middleware\PreventBackHistory;
 use App\Http\Middleware\UseRoleSessionCookie;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,27 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        /*
-        |--------------------------------------------------------------------------
-        | Pisahkan session admin dan customer
-        |--------------------------------------------------------------------------
-        |
-        | Middleware ini harus berjalan sebelum StartSession agar route /admin
-        | memakai cookie session admin, sedangkan route lainnya memakai cookie
-        | session customer.
-        |
-        */
-        $middleware->prependToGroup(
-            'web',
-            UseRoleSessionCookie::class
-        );
-
+        $middleware->prependToGroup('web', UseRoleSessionCookie::class);
         $middleware->alias([
             'admin' => AdminMiddleware::class,
             'customer' => CustomerMiddleware::class,
+            'no-cache' => PreventBackHistory::class,
         ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        //
-    })
+    ->withExceptions(function (Exceptions $exceptions): void {})
     ->create();

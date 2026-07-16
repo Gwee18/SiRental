@@ -14,11 +14,6 @@ return new class extends Migration
             $table->string('code_hash');
             $table->unsignedTinyInteger('attempts')->default(0);
 
-            /*
-             * DATETIME dipakai agar MariaDB lama tidak memberikan
-             * ON UPDATE CURRENT_TIMESTAMP secara otomatis kepada
-             * kolom waktu kedaluwarsa.
-             */
             $table->dateTime('expires_at');
             $table->dateTime('used_at')->nullable();
 

@@ -20,7 +20,6 @@
 
 @section('content')
 
-    {{-- FILTER --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
         <form
             method="GET"
@@ -61,7 +60,6 @@
         </form>
     </div>
 
-    {{-- SUMMARY --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-2">
@@ -104,7 +102,6 @@
         </div>
     </div>
 
-    {{-- TABEL --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100">
             <h2 class="font-bold text-[#00372c] text-base">

@@ -27,12 +27,6 @@ return new class extends Migration
                 ->after('dibayar_pada');
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Sinkronkan data transaksi lama
-        |--------------------------------------------------------------------------
-        */
-
         DB::table('transaksi')
             ->whereIn('status', ['menunggu', 'ditolak'])
             ->update([

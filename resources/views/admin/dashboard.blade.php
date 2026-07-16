@@ -5,7 +5,6 @@
 
 @section('content')
 
-    {{-- STAT CARDS --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
 
         <div class="bg-white rounded-2xl border border-gray-100 p-6">
@@ -73,7 +72,6 @@
 
     </div>
 
-    {{-- PENDAPATAN & DENDA --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
 
         <div class="bg-[#085041] rounded-2xl p-6 text-white">
@@ -119,7 +117,6 @@
 
     </div>
 
-    {{-- TRANSAKSI TERBARU --}}
     <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4">
             <h2 class="font-bold text-[#00372c] text-base">

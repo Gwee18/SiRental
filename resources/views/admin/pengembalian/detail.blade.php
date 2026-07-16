@@ -65,11 +65,9 @@
 
             <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_400px] 2xl:grid-cols-[minmax(0,1fr)_430px] gap-6 items-start">
 
-                {{-- KONTEN UTAMA --}}
                 <div class="min-w-0">
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
 
-                        {{-- HEADER TRANSAKSI --}}
                         <div class="flex flex-wrap items-start justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
                             <div>
                                 <p class="text-sm font-bold text-[#085041] mb-3">
@@ -92,7 +90,6 @@
                             </p>
                         </div>
 
-                        {{-- DATA PENGEMBALIAN --}}
                         <div class="mb-8">
                             <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-4">
                                 Data Pengembalian
@@ -156,7 +153,6 @@
                             </div>
                         </div>
 
-                        {{-- CHECKLIST BARANG --}}
                         <div>
                             <div class="flex items-end justify-between gap-4 mb-4">
                                 <div>
@@ -174,7 +170,6 @@
                                 </span>
                             </div>
 
-                            {{-- HEADER DESKTOP --}}
                             <div class="hidden md:grid grid-cols-[64px_72px_minmax(0,1fr)_140px_120px_64px] gap-4 px-4 py-3 bg-gray-50 rounded-xl text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
                                 <div>No</div>
                                 <div>Foto</div>
@@ -196,7 +191,6 @@
                                                 class="return-check hidden"
                                             >
 
-                                            {{-- MOBILE --}}
                                             <div class="md:hidden p-4 space-y-4">
 
                                                 <div class="flex items-start justify-between gap-4">
@@ -291,7 +285,6 @@
 
                                             </div>
 
-                                            {{-- DESKTOP --}}
                                             <div class="hidden md:grid grid-cols-[64px_72px_minmax(0,1fr)_140px_120px_64px] gap-4 items-center px-4 py-4">
 
                                                 <div class="font-semibold text-[#00372c]">
@@ -380,19 +373,16 @@
                     </div>
                 </div>
 
-                {{-- SIDEBAR RINGKASAN --}}
                 <div class="min-w-0 space-y-5">
 
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-                        {{-- JUDUL --}}
                         <div class="p-5 border-b border-gray-100">
                             <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider">
                                 Ringkasan Pengembalian
                             </p>
                         </div>
 
-                        {{-- BIAYA SEWA --}}
                         <div class="p-5 border-b border-gray-100">
                             <p class="text-xs font-semibold text-[#00372c] uppercase tracking-wider mb-4">
                                 Biaya Sewa
@@ -435,7 +425,6 @@
                             </p>
                         </div>
 
-                        {{-- STATUS WAKTU --}}
                         <div class="p-5 border-b border-gray-100">
                             <p class="text-xs font-semibold text-[#00372c] uppercase tracking-wider mb-4">
                                 Status Pengembalian
@@ -578,7 +567,6 @@
                             @endif
                         </div>
 
-                        {{-- RINGKASAN PEMBAYARAN --}}
                         <div class="p-5">
                             <p class="text-xs font-semibold text-[#00372c] uppercase tracking-wider mb-4">
                                 Ringkasan Pembayaran
@@ -668,7 +656,6 @@
                         </label>
                     @endif
 
-                    {{-- TOMBOL SELESAI --}}
                     <button
                         type="submit"
                         id="btnSelesai"

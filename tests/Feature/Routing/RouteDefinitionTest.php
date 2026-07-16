@@ -10,27 +10,14 @@ class RouteDefinitionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_customer_transaction_uses_one_canonical_index_route(): void
+    public function test_customer_routes_use_canonical_names(): void
     {
-        $this->assertTrue(
-            Route::has('customer.transaksi.index')
-        );
-
-        $this->assertTrue(
-            Route::has('customer.transaksi.show')
-        );
-
-        $this->assertFalse(
-            Route::has('customer.transaksi')
-        );
-
-        $this->assertSame(
-            url('/transaksi'),
-            route('customer.transaksi.index')
-        );
-
-        $this->get('/transaksi-saya')
-            ->assertNotFound();
+        $this->assertTrue(Route::has('customer.transaksi.index'));
+        $this->assertTrue(Route::has('customer.transaksi.show'));
+        $this->assertTrue(Route::has('session.csrf'));
+        $this->assertFalse(Route::has('customer.transaksi'));
+        $this->assertSame(url('/transaksi'), route('customer.transaksi.index'));
+        $this->get('/transaksi-saya')->assertNotFound();
     }
 
     public function test_admin_transaction_only_exposes_supported_routes(): void
@@ -42,10 +29,7 @@ class RouteDefinitionTest extends TestCase
             'admin.transaksi.tolak',
             'admin.transaksi.selesai',
         ] as $routeName) {
-            $this->assertTrue(
-                Route::has($routeName),
-                "Route {$routeName} seharusnya tersedia."
-            );
+            $this->assertTrue(Route::has($routeName));
         }
 
         foreach ([
@@ -55,10 +39,7 @@ class RouteDefinitionTest extends TestCase
             'admin.transaksi.update',
             'admin.transaksi.destroy',
         ] as $routeName) {
-            $this->assertFalse(
-                Route::has($routeName),
-                "Route {$routeName} seharusnya tidak tersedia."
-            );
+            $this->assertFalse(Route::has($routeName));
         }
     }
 
@@ -69,10 +50,7 @@ class RouteDefinitionTest extends TestCase
             'admin.pelanggan.show',
             'admin.pelanggan.destroy',
         ] as $routeName) {
-            $this->assertTrue(
-                Route::has($routeName),
-                "Route {$routeName} seharusnya tersedia."
-            );
+            $this->assertTrue(Route::has($routeName));
         }
 
         foreach ([
@@ -81,19 +59,14 @@ class RouteDefinitionTest extends TestCase
             'admin.pelanggan.edit',
             'admin.pelanggan.update',
         ] as $routeName) {
-            $this->assertFalse(
-                Route::has($routeName),
-                "Route {$routeName} seharusnya tidak tersedia."
-            );
+            $this->assertFalse(Route::has($routeName));
         }
     }
 
-    public function test_register_get_redirects_to_otp_login_and_post_is_removed(): void
+    public function test_unused_registration_routes_are_removed(): void
     {
-        $this->get('/register')
-            ->assertRedirect(route('login'));
-
-        $this->post('/register')
-            ->assertMethodNotAllowed();
+        $this->assertFalse(Route::has('register'));
+        $this->get('/register')->assertNotFound();
+        $this->post('/register')->assertNotFound();
     }
 }

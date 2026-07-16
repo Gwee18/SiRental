@@ -31,11 +31,6 @@ return new class extends Migration
                 ->after('no_telp_peminjam');
         });
 
-        /*
-         * Isi snapshot transaksi lama menggunakan data customer saat
-         * migration dijalankan. Kolom tetap nullable agar aman untuk
-         * data lama yang relasi customernya sudah tidak tersedia.
-         */
         DB::table('transaksi')
             ->select(['id', 'customer_id'])
             ->orderBy('id')

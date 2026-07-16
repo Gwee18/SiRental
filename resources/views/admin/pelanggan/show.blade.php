@@ -7,7 +7,6 @@
 
     <div class="w-full max-w-none space-y-5">
 
-        {{-- INFORMASI PELANGGAN --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
             <div class="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-gray-100">
                 <img
@@ -72,7 +71,6 @@
             </div>
         </div>
 
-        {{-- RIWAYAT TRANSAKSI --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
             <div class="px-6 py-5 border-b border-gray-100">
                 <h2 class="font-bold text-[#00372c] text-base">Riwayat Transaksi</h2>

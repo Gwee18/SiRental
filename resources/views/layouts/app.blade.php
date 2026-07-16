@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'SiRental') | Rental Alat Pendakian</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite(['resources/css/app.css', 'resources/js/site.js'])
+    @stack('styles')
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans antialiased">
-
-    {{-- NAVBAR --}}
-    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-[#085041] transition-all duration-300">
+<body
+    class="bg-gray-50 text-gray-900 font-sans antialiased"
+    data-csrf-url="{{ auth('web')->check() ? route('session.csrf') : '' }}"
+    data-login-url="{{ route('login') }}"
+>
+<header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-[#085041] transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 h-[72px] md:h-[86px] flex items-center justify-between">
-
-            {{-- Logo --}}
-            <a href="{{ route('home') }}" class="flex items-center shrink-0">
+<a href="{{ route('home') }}" class="flex items-center shrink-0">
                 <img
                     src="{{ asset('images/logo-sirental.png') }}"
                     alt="SiRental"
                     class="h-[52px] md:h-[60px] w-auto object-contain"
                 >
             </a>
-
-            {{-- Desktop Nav Links --}}
-            <nav class="hidden md:flex items-center gap-8">
+<nav class="hidden md:flex items-center gap-8">
                 <a href="{{ route('home') }}" class="text-white/80 hover:text-white text-sm font-medium transition-colors">
                     Beranda
                 </a>
@@ -39,8 +39,6 @@
                     Tentang Kami
                 </a>
             </nav>
-
-            {{-- Desktop Auth Buttons --}}
 <div class="hidden md:flex items-center gap-3">
     @auth('web')
         <div class="relative">
@@ -77,7 +75,7 @@
                     Transaksi Saya
                 </a>
 
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="logout-form">
                     @csrf
 
                     <button
@@ -95,9 +93,7 @@
         </a>
     @endauth
 </div>
-
-            {{-- Mobile Menu Button --}}
-            <button
+<button
                 id="mobileMenuButton"
                 type="button"
                 class="md:hidden w-10 h-10 rounded-xl border border-white/15 text-white flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -115,9 +111,7 @@
                 </svg>
             </button>
         </div>
-
-        {{-- Mobile Menu --}}
-        <div id="mobileMenu" class="md:hidden hidden bg-[#085041] border-t border-white/10">
+<div id="mobileMenu" class="md:hidden hidden bg-[#085041] border-t border-white/10">
             <div class="px-4 py-4 space-y-2">
                 <a href="{{ route('home') }}" class="mobile-menu-link block text-white/85 hover:text-white hover:bg-white/10 text-sm font-medium px-4 py-3 rounded-xl transition-colors">
                     Beranda
@@ -163,7 +157,7 @@
                             Transaksi Saya
                         </a>
 
-                        <form method="POST" action="{{ route('logout') }}">
+                        <form method="POST" action="{{ route('logout') }}" class="logout-form">
                             @csrf
 
                             <button
@@ -174,32 +168,20 @@
                             </button>
                         </form>
                     @else
-                        <div class="grid grid-cols-2 gap-3">
-                            <a href="{{ route('login') }}" class="text-center text-white border border-white/20 hover:bg-white/10 text-sm font-semibold px-4 py-3 rounded-xl transition-colors">
-                                Masuk
-                            </a>
-
-                            <a href="{{ route('register') }}" class="text-center bg-[#68dbae] hover:bg-[#55c99c] text-[#00372c] text-sm font-semibold px-4 py-3 rounded-xl transition-all">
-                                Daftar
-                            </a>
-                        </div>
+                        <a href="{{ route('login') }}" class="block text-center text-white border border-white/20 hover:bg-white/10 text-sm font-semibold px-4 py-3 rounded-xl transition-colors">
+                            Masuk
+                        </a>
                     @endauth
                 </div>
             </div>
         </div>
     </header>
-
-    {{-- MAIN CONTENT --}}
-    <main>
+<main>
         @yield('content')
     </main>
-
-    {{-- FOOTER --}}
-    <footer class="bg-[#00372c] text-white">
+<footer class="bg-[#00372c] text-white">
         <div class="max-w-7xl mx-auto px-6 py-14 md:py-16 grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
-
-            {{-- Brand --}}
-            <div class="text-center md:text-left md:-ml-12 lg:-ml-16">
+<div class="text-center md:text-left md:-ml-12 lg:-ml-16">
                 <a href="{{ route('home') }}" class="inline-flex items-center justify-center md:justify-start">
                     <img
                         src="{{ asset('images/logo-sirental.png') }}"
@@ -235,9 +217,7 @@
                     </a>
                 </div>
             </div>
-
-            {{-- Navigasi --}}
-            <div class="space-y-4 text-center md:text-left">
+<div class="space-y-4 text-center md:text-left">
                 <h4 class="font-semibold text-base">
                     Navigasi
                 </h4>
@@ -280,9 +260,7 @@
                     </li>
                 </ul>
             </div>
-
-            {{-- Kontak & Jam Operasional --}}
-            <div class="space-y-4">
+<div class="space-y-4">
                 <h4 class="font-semibold text-base text-center md:text-left">
                     Hubungi Kami
                 </h4>
@@ -343,81 +321,6 @@
             </div>
         </div>
     </footer>
-
-    {{-- Scripts --}}
-    <script>
-        window.addEventListener('scroll', () => {
-            const navbar = document.getElementById('navbar');
-
-            if (!navbar) return;
-
-            if (window.scrollY > 50) {
-                navbar.classList.add('shadow-lg', 'backdrop-blur-md');
-                navbar.style.backgroundColor = 'rgba(8, 80, 65, 0.95)';
-            } else {
-                navbar.classList.remove('shadow-lg', 'backdrop-blur-md');
-                navbar.style.backgroundColor = '#085041';
-            }
-        });
-
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                const target = document.querySelector(this.getAttribute('href'));
-
-                if (target) {
-                    e.preventDefault();
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-
-        const profileBtn = document.getElementById('profileMenuButton');
-        const profileDropdown = document.getElementById('profileMenuDropdown');
-
-        if (profileBtn && profileDropdown) {
-            profileBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                profileDropdown.classList.toggle('hidden');
-            });
-
-            document.addEventListener('click', (e) => {
-                if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
-                    profileDropdown.classList.add('hidden');
-                }
-            });
-        }
-
-        const mobileMenuButton = document.getElementById('mobileMenuButton');
-        const mobileMenu = document.getElementById('mobileMenu');
-        const mobileMenuIconOpen = document.getElementById('mobileMenuIconOpen');
-        const mobileMenuIconClose = document.getElementById('mobileMenuIconClose');
-
-        function closeMobileMenu() {
-            if (!mobileMenu) return;
-
-            mobileMenu.classList.add('hidden');
-            mobileMenuIconOpen.classList.remove('hidden');
-            mobileMenuIconClose.classList.add('hidden');
-        }
-
-        if (mobileMenuButton && mobileMenu) {
-            mobileMenuButton.addEventListener('click', () => {
-                mobileMenu.classList.toggle('hidden');
-                mobileMenuIconOpen.classList.toggle('hidden');
-                mobileMenuIconClose.classList.toggle('hidden');
-            });
-
-            document.querySelectorAll('.mobile-menu-link').forEach(link => {
-                link.addEventListener('click', closeMobileMenu);
-            });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth >= 768) {
-                    closeMobileMenu();
-                }
-            });
-        }
-    </script>
 
     @stack('scripts')
 

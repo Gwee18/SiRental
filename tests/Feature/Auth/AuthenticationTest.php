@@ -156,6 +156,41 @@ class AuthenticationTest extends TestCase
             ]);
     }
 
+    public function test_authenticated_customer_can_refresh_csrf_token(): void
+    {
+        $customer = Customer::create([
+            'nama_lengkap' => 'Customer Test',
+            'email' => 'customer@example.com',
+            'email_verified_at' => now(),
+            'password' => null,
+        ]);
+
+        $response = $this
+            ->actingAs($customer, 'web')
+            ->getJson(route('session.csrf'));
+
+        $response
+            ->assertOk()
+            ->assertJsonStructure(['token']);
+
+        $cacheControl = $response->headers->get('Cache-Control');
+
+        $this->assertNotNull($cacheControl);
+
+        foreach ([
+            'no-store',
+            'no-cache',
+            'must-revalidate',
+            'max-age=0',
+            'private',
+        ] as $directive) {
+            $this->assertStringContainsString(
+                $directive,
+                $cacheControl
+            );
+        }
+    }
+
     public function test_customer_can_logout(): void
     {
         $customer = Customer::create([

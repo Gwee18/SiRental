@@ -6,7 +6,6 @@
 <section class="pt-28 md:pt-32 pb-20 md:pb-24 bg-[#f6f8f7] min-h-screen">
     <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
-        {{-- HEADER --}}
         <div class="mb-8 md:mb-10">
             <h1 class="text-3xl md:text-4xl font-bold text-[#00372c] mb-3 tracking-tight">
                 Transaksi Saya
@@ -55,7 +54,6 @@
         @else
             <div class="space-y-3">
 
-                {{-- DESKTOP HEADER --}}
                 <div class="hidden md:grid grid-cols-[minmax(0,1.35fr)_110px_190px_145px_90px] gap-5 px-5 py-3 bg-white/70 border border-gray-100 rounded-2xl text-xs font-bold uppercase tracking-wider text-gray-400">
                     <div>Transaksi</div>
                     <div class="text-center">Lama</div>
@@ -119,7 +117,6 @@
                         class="block bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:-translate-y-0.5 transition-all p-4 md:p-0 overflow-hidden"
                     >
 
-                        {{-- MOBILE --}}
                         <div class="md:hidden space-y-3">
                             <div>
                                 <p class="text-[11px] text-gray-400 leading-relaxed mb-1">
@@ -183,7 +180,6 @@
                             </div>
                         </div>
 
-                        {{-- DESKTOP --}}
                         <div class="hidden md:grid grid-cols-[minmax(0,1.35fr)_110px_190px_145px_90px] gap-5 items-center px-5 py-4">
                             <div class="min-w-0">
                                 <h2 class="text-[#00372c] font-bold text-base truncate">

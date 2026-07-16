@@ -40,9 +40,6 @@ class AdminAuthenticationTest extends TestCase
             'admin'
         );
 
-        /*
-         * Login admin tidak boleh membuat guard customer ikut login.
-         */
         $this->assertGuest('web');
 
         $response->assertRedirect(
@@ -135,10 +132,6 @@ class AdminAuthenticationTest extends TestCase
     {
         $admin = new Admin;
 
-        /*
-         * Model Admin memiliki cast password "hashed", sehingga
-         * password plain ini otomatis disimpan dalam bentuk hash.
-         */
         $admin->forceFill([
             'nama' => 'Admin Test',
             'email' => 'admin@example.com',

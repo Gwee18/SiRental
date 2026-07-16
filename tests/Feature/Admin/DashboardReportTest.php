@@ -59,10 +59,6 @@ class DashboardReportTest extends TestCase
             'total_dibayar' => 150000,
         ]);
 
-        /*
-         * Nilai ini tidak boleh dihitung karena pembayarannya
-         * belum berstatus diterima.
-         */
         $this->createTransaksi([
             'status' => 'selesai',
             'status_pembayaran' => Transaksi::PEMBAYARAN_BELUM_BAYAR,
@@ -176,10 +172,6 @@ class DashboardReportTest extends TestCase
             'denda_dibayar_pada' => Carbon::create(2026, 7, 10, 10),
         ]);
 
-        /*
-         * Data lama yang belum memiliki waktu pembayaran khusus
-         * tetap dibaca dari updated_at.
-         */
         $legacy = $this->createTransaksi([
             'status' => 'selesai',
             'status_pembayaran' => Transaksi::PEMBAYARAN_LUNAS,

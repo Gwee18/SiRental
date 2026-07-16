@@ -53,8 +53,6 @@ class LaporanController extends Controller
         $awalBulan = Carbon::create($tahun, $bulan, 1)->startOfMonth();
         $akhirBulan = $awalBulan->copy()->endOfMonth();
 
-        // Untuk data baru, tanggal pelunasan berasal dari pembayaran denda
-        // atau pembayaran sewa. updated_at menjadi fallback bagi data lama.
         $kolomTanggalLunas = DB::raw(
             'COALESCE(denda_dibayar_pada, dibayar_pada, updated_at)'
         );

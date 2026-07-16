@@ -50,11 +50,9 @@
 
         <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_390px] 2xl:grid-cols-[minmax(0,1fr)_420px] gap-6 items-start">
 
-            {{-- KONTEN UTAMA --}}
             <div class="min-w-0">
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
 
-                    {{-- Header --}}
                     <div class="flex flex-wrap items-start justify-between gap-4 mb-6 pb-6 border-b border-gray-100">
                         <div>
                             <h2 class="text-2xl font-bold text-[#00372c] mb-1">
@@ -71,7 +69,6 @@
                         </p>
                     </div>
 
-                    {{-- Data Pelanggan --}}
                     <div class="mb-8">
                         <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-4">
                             Data Pelanggan
@@ -112,7 +109,6 @@
                         </div>
                     </div>
 
-                    {{-- Periode Sewa --}}
                     @if($transaksi->tanggal_mulai && $transaksi->tanggal_selesai)
                         <div class="mb-8">
                             <p class="text-sm text-gray-500">
@@ -129,13 +125,11 @@
                         </div>
                     @endif
 
-                    {{-- Tabel Alat Disewa --}}
                     <div class="mb-4">
                         <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-4">
                             Alat yang Disewa
                         </p>
 
-                        {{-- Header desktop --}}
                         <div class="hidden md:grid grid-cols-[70px_100px_minmax(0,1fr)_160px_120px] gap-4 px-4 py-3 bg-gray-50 rounded-xl text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
                             <div>No</div>
                             <div>Foto Barang</div>
@@ -148,7 +142,6 @@
                             @foreach($transaksi->detailTransaksi as $index => $detail)
                                 <div class="border border-gray-100 rounded-2xl md:rounded-xl p-4 md:p-0 overflow-hidden">
 
-                                    {{-- Mobile --}}
                                     <div class="md:hidden space-y-4">
                                         <div class="flex items-start justify-between gap-4">
                                             <div>
@@ -219,15 +212,12 @@
                                         </div>
                                     </div>
 
-                                    {{-- Desktop --}}
                                     <div class="hidden md:grid grid-cols-[70px_100px_minmax(0,1fr)_160px_120px] gap-4 items-center px-4 py-4">
 
-                                        {{-- No --}}
                                         <div class="font-semibold text-[#00372c]">
                                             {{ $index + 1 }}
                                         </div>
 
-                                        {{-- Foto Barang --}}
                                         <div>
                                             <div class="w-16 h-16 rounded-xl overflow-hidden border border-gray-100 bg-gray-50">
                                                 @if($detail->alat->foto_alat ?? false)
@@ -248,7 +238,6 @@
                                             </div>
                                         </div>
 
-                                        {{-- Nama Barang --}}
                                         <div class="min-w-0">
                                             <p class="font-semibold text-[#00372c] truncate">
                                                 {{ $detail->alat->nama_alat ?? '-' }}
@@ -261,12 +250,10 @@
                                             </p>
                                         </div>
 
-                                        {{-- Total Harga --}}
                                         <div class="font-bold text-[#085041]">
                                             Rp {{ number_format($detail->subtotal, 0, ',', '.') }}
                                         </div>
 
-                                        {{-- Foto Customer --}}
                                         <div>
                                             @if($detail->foto_barang)
                                                 <button
@@ -292,7 +279,6 @@
                         </div>
                     </div>
 
-                    {{-- Catatan --}}
                     @if($transaksi->catatan)
                         <div class="bg-gray-50 rounded-xl px-4 py-3 mt-6">
                             <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-1">
@@ -308,10 +294,8 @@
                 </div>
             </div>
 
-            {{-- SIDEBAR --}}
             <div class="min-w-0 space-y-5">
 
-                {{-- KTP --}}
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                     <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-3">
                         Foto KTP / Identitas
@@ -348,7 +332,6 @@
                     @endif
                 </div>
 
-                {{-- Ringkasan --}}
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                     <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-4">
                         Ringkasan Pembayaran
@@ -390,7 +373,6 @@
                     </div>
                 </div>
 
-                {{-- Aksi Admin --}}
                 @if($transaksi->status === 'menunggu')
                     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                         <p class="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-4">
@@ -440,7 +422,6 @@
         </div>
     </div>
 
-    {{-- Modal Preview --}}
     <div id="imagePreviewModal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 px-6 py-10">
         <button
             type="button"

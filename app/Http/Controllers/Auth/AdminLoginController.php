@@ -18,11 +18,9 @@ class AdminLoginController extends Controller
 
     public function showLoginForm(): View|RedirectResponse
     {
-        if (Auth::guard('admin')->check()) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        return view('auth.admin-login');
+        return Auth::guard('admin')->check()
+            ? redirect()->route('admin.dashboard')
+            : view('auth.admin-login');
     }
 
     public function login(Request $request): RedirectResponse
@@ -33,75 +31,47 @@ class AdminLoginController extends Controller
         ]);
 
         $email = Str::lower(trim($validated['email']));
-        $throttleKey = $this->throttleKey(
-            $email,
-            $request->ip()
-        );
+        $throttleKey = $this->throttleKey($email, $request->ip());
 
-        if (
-            RateLimiter::tooManyAttempts(
-                $throttleKey,
-                self::MAX_LOGIN_ATTEMPTS
-            )
-        ) {
-            $seconds = RateLimiter::availableIn(
-                $throttleKey
-            );
-
-            return back()
-                ->withInput($request->only('email'))
-                ->withErrors([
-                    'email' => "Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.",
-                ]);
+        if (RateLimiter::tooManyAttempts($throttleKey, self::MAX_LOGIN_ATTEMPTS)) {
+            return back()->withInput($request->only('email'))->withErrors([
+                'email' => 'Terlalu banyak percobaan login. Coba lagi dalam '
+                    .RateLimiter::availableIn($throttleKey).' detik.',
+            ]);
         }
 
-        $credentials = [
+        $authenticated = Auth::guard('admin')->attempt([
             'email' => $email,
             'password' => $validated['password'],
-        ];
+        ], $request->boolean('remember'));
 
-        if (
-            Auth::guard('admin')->attempt(
-                $credentials,
-                $request->boolean('remember')
-            )
-        ) {
-            RateLimiter::clear($throttleKey);
-            $request->session()->regenerate();
+        if (! $authenticated) {
+            RateLimiter::hit($throttleKey, self::LOGIN_DECAY_SECONDS);
 
-            return redirect()->intended(
-                route('admin.dashboard')
-            );
-        }
-
-        RateLimiter::hit(
-            $throttleKey,
-            self::LOGIN_DECAY_SECONDS
-        );
-
-        return back()
-            ->withInput($request->only('email'))
-            ->withErrors([
+            return back()->withInput($request->only('email'))->withErrors([
                 'email' => 'Email atau password salah.',
             ]);
+        }
+
+        RateLimiter::clear($throttleKey);
+        $request->session()->regenerate();
+
+        return redirect()->intended(route('admin.dashboard'));
     }
 
     public function logout(Request $request): RedirectResponse
     {
         Auth::guard('admin')->logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login');
+        return redirect()->route('admin.login')->withHeaders([
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0, private',
+        ]);
     }
 
-    private function throttleKey(
-        string $email,
-        ?string $ip
-    ): string {
-        return 'admin-login:'.sha1(
-            $email.'|'.($ip ?? 'unknown')
-        );
+    private function throttleKey(string $email, ?string $ip): string
+    {
+        return 'admin-login:'.sha1($email.'|'.($ip ?? 'unknown'));
     }
 }

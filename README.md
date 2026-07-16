@@ -40,7 +40,6 @@ pendakian. Aplikasi memiliki dua peran utama, yaitu customer dan admin.
 - Vite
 - Laravel Socialite
 - DomPDF
-- Intervention Image
 - PHPUnit
 
 ## Persyaratan
@@ -144,7 +143,7 @@ php artisan storage:link
 ### 8. Instal dependency frontend
 
 ```bash
-npm install
+npm ci
 ```
 
 ### 9. Jalankan aplikasi
@@ -368,3 +367,19 @@ Transaksi selesai
 
 Proyek ini dibuat untuk kebutuhan pembelajaran dan pengembangan sistem
 rental alat pendakian.
+## Pengujian dua akun customer
+
+Tab pada profil browser yang sama menggunakan cookie session customer yang sama.
+Gunakan jendela Incognito atau browser lain ketika menguji akun customer A dan
+customer B secara bersamaan.
+
+## Pemeriksaan kualitas
+
+```bash
+php artisan test --stop-on-failure
+./vendor/bin/pint --test
+npm run build
+npm audit
+composer audit
+```
+

@@ -6,7 +6,6 @@
 <section class="pt-28 md:pt-32 pb-20 bg-white min-h-screen">
     <div class="max-w-3xl mx-auto px-4 sm:px-6">
 
-        {{-- Hero --}}
         <div class="mb-10">
             <h1 class="text-3xl md:text-4xl font-bold text-[#00372c] tracking-tight leading-tight mb-3">
                 Kebijakan Privasi
@@ -17,14 +16,11 @@
             </p>
         </div>
 
-        {{-- Content --}}
         <div class="relative pl-8 md:pl-9">
 
-            {{-- Trail line --}}
             <div class="absolute left-[13px] md:left-[15px] top-2 bottom-2 w-[2px]"
                  style="background-image: linear-gradient(#e2e2de, #e2e2de); background-size: 2px 8px; background-repeat: repeat-y;"></div>
 
-            {{-- 01 Data yang Dikumpulkan --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -49,7 +45,6 @@
                 </div>
             </article>
 
-            {{-- 02 Penggunaan Data --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -73,7 +68,6 @@
                 </div>
             </article>
 
-            {{-- 03 Foto KTP dan Barang --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -98,7 +92,6 @@
                 </div>
             </article>
 
-            {{-- 04 Keamanan Data --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -122,7 +115,6 @@
                 </div>
             </article>
 
-            {{-- 05 Penyimpanan Data --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -147,7 +139,6 @@
                 </div>
             </article>
 
-            {{-- 06 Pembagian Data --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -173,7 +164,6 @@
                 </div>
             </article>
 
-            {{-- 07 Hak Customer --}}
             <article class="relative mb-4">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">
@@ -198,7 +188,6 @@
                 </div>
             </article>
 
-            {{-- Perubahan Kebijakan --}}
             <article class="relative">
                 <div class="absolute -left-8 md:-left-9 top-4 w-[26px] h-[26px] rounded-full bg-white border-2 border-[#1D9E75] flex items-center justify-center">
                     <svg width="13" height="13" fill="none" stroke="#0F6E56" stroke-width="2" viewBox="0 0 24 24">

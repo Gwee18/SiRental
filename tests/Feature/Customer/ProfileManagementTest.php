@@ -13,20 +13,11 @@ class ProfileManagementTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * Daftar file lokal sementara yang dibuat selama test.
-     *
-     * @var array<int, string>
-     */
     private array $temporaryFiles = [];
 
     protected function tearDown(): void
     {
-        /*
-         * Hapus hanya file yang dibuat oleh test ini.
-         * Konfigurasi dan instance disk "public" tidak pernah diubah,
-         * sehingga tidak dapat memengaruhi kelas test berikutnya.
-         */
+
         foreach (array_unique($this->temporaryFiles) as $path) {
             if ($path) {
                 Storage::disk('public')->delete($path);

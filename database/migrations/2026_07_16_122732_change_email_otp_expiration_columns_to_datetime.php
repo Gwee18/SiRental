@@ -9,15 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        /*
-         * Pada MariaDB versi lama, kolom TIMESTAMP pertama dapat
-         * memperoleh DEFAULT CURRENT_TIMESTAMP dan
-         * ON UPDATE CURRENT_TIMESTAMP secara otomatis.
-         *
-         * Akibatnya, ketika attempts bertambah setelah kode salah,
-         * expires_at ikut berubah menjadi waktu saat ini dan kode
-         * langsung dianggap kedaluwarsa pada percobaan berikutnya.
-         */
+
         if (DB::getDriverName() === 'mysql') {
             DB::statement(
                 'ALTER TABLE email_otps
@@ -37,10 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         if (DB::getDriverName() === 'mysql') {
-            /*
-             * DEFAULT ditulis eksplisit tanpa ON UPDATE agar rollback
-             * tidak menghidupkan kembali masalah yang sama.
-             */
+
             DB::statement(
                 'ALTER TABLE email_otps
                  MODIFY expires_at TIMESTAMP NOT NULL

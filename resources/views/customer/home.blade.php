@@ -10,10 +10,8 @@
     $rentalLabel = $isCustomerLogin ? 'Rental Sekarang' : 'Mulai Rental';
 @endphp
 
-{{-- HERO SECTION --}}
 <section class="relative min-h-[100svh] md:h-screen md:min-h-[640px] flex items-start md:items-center pt-[120px] md:pt-0 pb-16 md:pb-0 overflow-hidden">
 
-    {{-- Background --}}
     <div class="absolute inset-0 z-0">
         <img
             src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80"
@@ -24,7 +22,6 @@
         <div class="absolute inset-0 bg-[#00372c]/60"></div>
     </div>
 
-    {{-- Content --}}
     <div class="relative z-10 max-w-7xl mx-auto px-6 w-full">
         <div class="max-w-2xl">
             <span class="inline-block bg-white/10 text-[#F7F2E8] text-[11px] sm:text-xs font-semibold tracking-widest uppercase px-3 py-1.5 rounded-full mb-5 md:mb-6 border border-white/20">
@@ -59,7 +56,6 @@
         </div>
     </div>
 
-    {{-- Scroll Indicator --}}
     <div class="hidden md:block absolute bottom-8 left-1/2 -translate-x-1/2 z-10 animate-bounce">
         <svg width="24" height="24" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" class="opacity-60">
             <polyline points="6 9 12 15 18 9"/>
@@ -68,7 +64,6 @@
 
 </section>
 
-{{-- CARA SEWA --}}
 <section class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-6">
 
@@ -84,7 +79,6 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
-            {{-- Step 1 --}}
             <div class="text-center space-y-4">
                 <svg width="34" height="34" fill="none" stroke="#085041" stroke-width="1.8" viewBox="0 0 24 24" class="mx-auto">
                     <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/>
@@ -104,7 +98,6 @@
                 </p>
             </div>
 
-            {{-- Step 2 --}}
             <div class="text-center space-y-4">
                 <svg width="34" height="34" fill="none" stroke="#085041" stroke-width="1.8" viewBox="0 0 24 24" class="mx-auto">
                     <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4A2 2 0 0 0 12 22a2 2 0 0 0 1-.27l2-1.14"/>
@@ -128,7 +121,6 @@
                 </p>
             </div>
 
-            {{-- Step 3 --}}
             <div class="text-center space-y-4">
                 <svg width="34" height="34" fill="none" stroke="#085041" stroke-width="1.8" viewBox="0 0 24 24" class="mx-auto">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -151,7 +143,6 @@
                 </p>
             </div>
 
-            {{-- Step 4 --}}
             <div class="text-center space-y-4">
                 <svg width="34" height="34" fill="none" stroke="#085041" stroke-width="1.8" viewBox="0 0 24 24" class="mx-auto">
                     <polyline points="9 11 12 14 22 4"/>
@@ -175,7 +166,6 @@
     </div>
 </section>
 
-{{-- KATALOG ALAT --}}
 <section id="katalog" class="py-14 md:py-24 bg-gray-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
 
@@ -204,7 +194,6 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             @forelse($alat as $item)
 
-                {{-- Mobile Card --}}
                 <div class="sm:hidden bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <div class="flex gap-4 p-3">
 
@@ -251,7 +240,6 @@
                     </div>
                 </div>
 
-                {{-- Desktop / Tablet Card --}}
                 <div class="hidden sm:block bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
 
                     <div class="h-48 bg-[#e8f5f0] flex items-center justify-center">
@@ -311,7 +299,6 @@
     </div>
 </section>
 
-{{-- DAFTAR HARGA --}}
 <section id="harga" class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6">
 
@@ -333,7 +320,6 @@
             @forelse($alatByKategori as $kategori => $items)
                 <div class="rounded-2xl border border-gray-100 bg-white overflow-hidden shadow-sm">
 
-                    {{-- Header Kategori --}}
                     <div class="bg-[#085041] text-white px-4 md:px-6 py-3 flex items-center gap-2">
                         <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                             <path d="M4 6h16"/>
@@ -346,7 +332,6 @@
                         </span>
                     </div>
 
-                    {{-- Table Scroll --}}
                     <div class="overflow-x-auto">
                         <table class="w-full min-w-[620px] bg-white">
                             <thead>
@@ -408,7 +393,6 @@
     </div>
 </section>
 
-{{-- TENTANG KAMI --}}
 <section id="tentang" class="py-16 md:py-24 bg-gray-50">
     <div class="max-w-7xl mx-auto px-6">
 

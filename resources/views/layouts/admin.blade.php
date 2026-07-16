@@ -6,13 +6,12 @@
 
     <title>@yield('title', 'Admin') | SiRental</title>
 
-    {{-- Dipakai sementara agar ikon lama pada halaman admin tidak berubah menjadi teks --}}
     <link
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         rel="stylesheet"
     >
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite('resources/css/app.css')
 
     <style>
         .material-symbols-outlined {
@@ -50,10 +49,8 @@
 
     <div class="flex min-h-screen">
 
-        {{-- SIDEBAR --}}
         <aside class="w-80 bg-white border-r border-gray-100 flex flex-col shrink-0 sticky top-0 h-screen">
 
-            {{-- LOGO --}}
             <div class="h-[72px] flex items-center px-6 border-b border-gray-100">
                 <a
                     href="{{ route('admin.dashboard') }}"
@@ -67,10 +64,8 @@
                 </a>
             </div>
 
-            {{-- NAVIGASI --}}
             <nav class="flex-1 px-3 py-6 space-y-1 text-sm">
 
-                {{-- DASHBOARD --}}
                 <a
                     href="{{ route('admin.dashboard') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
@@ -98,7 +93,6 @@
                     </span>
                 </a>
 
-                {{-- BARANG --}}
                 <a
                     href="{{ route('admin.alat.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
@@ -125,7 +119,6 @@
                     </span>
                 </a>
 
-                {{-- KONFIRMASI PEMINJAMAN --}}
                 <a
                     href="{{ route('admin.transaksi.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
@@ -159,7 +152,6 @@
                     @endif
                 </a>
 
-                {{-- VERIFIKASI PENGEMBALIAN --}}
                 <a
                     href="{{ route('admin.pengembalian.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
@@ -189,7 +181,6 @@
                     </span>
                 </a>
 
-                {{-- PELANGGAN --}}
                 <a
                     href="{{ route('admin.pelanggan.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
@@ -225,7 +216,6 @@
                     @endif
                 </a>
 
-                {{-- LAPORAN --}}
                 <a
                     href="{{ route('admin.laporan.index') }}"
                     class="flex items-center gap-3 px-4 py-3 rounded-xl transition-colors
@@ -256,7 +246,6 @@
 
             </nav>
 
-            {{-- LOGOUT --}}
             <div class="p-3 border-t border-gray-100">
                 <form
                     method="POST"
@@ -291,20 +280,16 @@
 
         </aside>
 
-        {{-- MAIN CONTENT --}}
         <div class="flex-1 flex flex-col min-w-0">
 
-            {{-- HEADER --}}
             <header class="sticky top-0 z-30 h-[72px] bg-white/90 backdrop-blur-md border-b border-gray-100 flex items-center justify-between px-8 shrink-0">
 
-                {{-- JUDUL HALAMAN --}}
                 <div class="flex items-center gap-3">
                     <h1 class="font-bold text-[#00372c] text-xl">
                         @yield('page-title', 'Dashboard')
                     </h1>
                 </div>
 
-                {{-- HEADER KANAN --}}
                 <div class="flex items-center gap-4">
 
                     @hasSection('header-actions')
@@ -332,7 +317,6 @@
 
             </header>
 
-            {{-- CONTENT --}}
             <main class="flex-1 p-8 bg-[#f1f3f4]">
                 @yield('content')
             </main>

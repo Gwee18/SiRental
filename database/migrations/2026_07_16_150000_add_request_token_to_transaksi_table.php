@@ -9,14 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transaksi', function (Blueprint $table) {
-            $table->string('foto_ktp')->nullable()->after('catatan');
+            $table->uuid('request_token')->nullable()->unique()->after('customer_id');
         });
     }
 
     public function down(): void
     {
         Schema::table('transaksi', function (Blueprint $table) {
-            $table->dropColumn('foto_ktp');
+            $table->dropUnique(['request_token']);
+            $table->dropColumn('request_token');
         });
     }
 };

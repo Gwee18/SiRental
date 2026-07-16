@@ -12,17 +12,14 @@ class UseRoleSessionCookie
 
     private const CUSTOMER_COOKIE = 'sirental_customer_session';
 
-    public function handle(
-        Request $request,
-        Closure $next
-    ): Response {
-        $cookieName = $request->is('admin')
-            || $request->is('admin/*')
-                ? self::ADMIN_COOKIE
-                : self::CUSTOMER_COOKIE;
+    public function handle(Request $request, Closure $next): Response
+    {
+        $isAdminRoute = $request->is('admin') || $request->is('admin/*');
 
         config([
-            'session.cookie' => $cookieName,
+            'session.cookie' => $isAdminRoute
+                ? self::ADMIN_COOKIE
+                : self::CUSTOMER_COOKIE,
         ]);
 
         return $next($request);

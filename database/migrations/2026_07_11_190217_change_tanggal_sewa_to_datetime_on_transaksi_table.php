@@ -15,17 +15,6 @@ return new class extends Migration
             $table->dateTime('tanggal_selesai')->nullable()->change();
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Perbaiki transaksi aktif lama
-        |--------------------------------------------------------------------------
-        |
-        | Sebelumnya tanggal sewa hanya menyimpan tanggal tanpa jam.
-        | Untuk transaksi aktif lama, updated_at digunakan sebagai perkiraan
-        | waktu konfirmasi admin.
-        |
-        */
-
         $transaksiAktif = DB::table('transaksi')
             ->where('status', 'aktif')
             ->whereNotNull('tanggal_mulai')

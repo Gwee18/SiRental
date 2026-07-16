@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
-use App\Models\Transaksi;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Customer;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class TransaksiController extends Controller
 {
-    public function index()
+    public function index(Request $request): View
     {
-        $customerId = Auth::guard('web')->id();
-
-        $transaksi = Transaksi::where('customer_id', $customerId)
+        $transaksi = $this->customer($request)
+            ->transaksi()
             ->with('detailTransaksi.alat')
             ->latest()
             ->get();
@@ -20,17 +20,18 @@ class TransaksiController extends Controller
         return view('customer.transaksi.index', compact('transaksi'));
     }
 
-    public function show($id)
+    public function show(Request $request, int $id): View
     {
-        $customerId = Auth::guard('web')->id();
-
-        $transaksi = Transaksi::where('customer_id', $customerId)
-            ->with([
-                'detailTransaksi.alat',
-                'denda',
-            ])
+        $transaksi = $this->customer($request)
+            ->transaksi()
+            ->with(['detailTransaksi.alat', 'denda'])
             ->findOrFail($id);
 
         return view('customer.transaksi.show', compact('transaksi'));
+    }
+
+    private function customer(Request $request): Customer
+    {
+        return $request->user('web');
     }
 }

@@ -364,10 +364,6 @@ class OtpSecurityTest extends TestCase
             (int) $newOtp->attempts
         );
 
-        /*
-         * Satu kode salah pada OTP baru harus diproses sebagai
-         * percobaan pertama, bukan langsung ditolak rate limiter lama.
-         */
         $this
             ->from(route('login.verify'))
             ->withServerVariables([
@@ -409,10 +405,6 @@ class OtpSecurityTest extends TestCase
                 route('login.verify')
             );
 
-            /*
-             * Lewati cooldown 60 detik agar request berikutnya
-             * menguji batas total pengiriman, bukan cooldown.
-             */
             if ($attempt < 3) {
                 $otp = EmailOtp::where(
                     'email',

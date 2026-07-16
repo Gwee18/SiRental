@@ -53,7 +53,6 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 @foreach($alat as $item)
 
-                    {{-- Mobile Card --}}
                     <div class="sm:hidden bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                         <div class="flex gap-4 p-3">
 
@@ -100,7 +99,6 @@
                         </div>
                     </div>
 
-                    {{-- Desktop / Tablet Card --}}
                     <div class="hidden sm:block bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                         <div class="h-48 bg-[#e8f5f0] flex items-center justify-center">
                             @if($item->foto_alat)

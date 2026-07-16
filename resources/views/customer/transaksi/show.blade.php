@@ -15,29 +15,11 @@
 
     $jamToleransi = 2;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Perhitungan biaya sewa harian
-    |--------------------------------------------------------------------------
-    */
-
     $totalSewaHarian = $transaksi->detailTransaksi->sum(function ($detail) {
         return (float) $detail->harga_satuan * (int) $detail->jumlah;
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | Denda 100% dari harga sewa harian
-    |--------------------------------------------------------------------------
-    */
-
     $dendaPerPeriode = (int) round($totalSewaHarian);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Perhitungan waktu
-    |--------------------------------------------------------------------------
-    */
 
     $batasKembali = null;
     $batasToleransi = null;
@@ -86,12 +68,6 @@
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Format keterlambatan
-    |--------------------------------------------------------------------------
-    */
-
     $telatHari = intdiv($menitTerlambat, 1440);
     $sisaMenitSetelahHari = $menitTerlambat % 1440;
     $telatJam = intdiv($sisaMenitSetelahHari, 60);
@@ -117,12 +93,6 @@
 
     $teksDurasiTerlambat = implode(' ', $durasiTerlambat);
 
-    /*
-    |--------------------------------------------------------------------------
-    | Status transaksi
-    |--------------------------------------------------------------------------
-    */
-
     $statusText = match($transaksi->status) {
         'menunggu' => 'Menunggu Pembayaran',
         'disetujui', 'aktif' => 'Sedang Disewa',
@@ -139,12 +109,6 @@
         default => 'text-gray-500',
     };
 
-    /*
-    |--------------------------------------------------------------------------
-    | Periode sewa
-    |--------------------------------------------------------------------------
-    */
-
     $periodeSewa = '-';
 
     if ($transaksi->tanggal_mulai && $transaksi->tanggal_selesai) {
@@ -155,12 +119,6 @@
             . \Carbon\Carbon::parse($transaksi->tanggal_selesai)
                 ->translatedFormat('d M Y, H:i');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Ringkasan pembayaran
-    |--------------------------------------------------------------------------
-    */
 
     if ($transaksi->status === 'selesai') {
         $dendaDitampilkan = (int) $transaksi->total_denda;
@@ -249,7 +207,6 @@
             Kembali ke Transaksi Saya
         </a>
 
-        {{-- HEADER --}}
         <div class="mb-8 md:mb-10">
 
             <div class="mb-7">
@@ -264,7 +221,6 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[190px_410px_220px] gap-y-6 lg:gap-x-8 w-full lg:w-fit">
 
-    {{-- STATUS --}}
     <div>
         <p class="text-[11px] uppercase tracking-[0.18em] font-bold text-slate-400 mb-2">
             Status
@@ -275,7 +231,6 @@
         </p>
     </div>
 
-    {{-- PERIODE SEWA --}}
     <div>
         <p class="text-[11px] uppercase tracking-[0.18em] font-bold text-slate-400 mb-2">
             Periode Sewa
@@ -286,7 +241,6 @@
         </p>
     </div>
 
-    {{-- WAKTU --}}
     <div>
         <p class="text-[11px] uppercase tracking-[0.18em] font-bold text-slate-400 mb-2">
             {{ $labelWaktu }}
@@ -315,7 +269,6 @@
 
         <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_390px] gap-6 items-start">
 
-            {{-- ALAT YANG DISEWA --}}
             <div class="order-1 xl:col-start-1 xl:row-start-1 space-y-3">
 
                 <div class="flex items-center justify-between gap-4">
@@ -330,7 +283,6 @@
 
                 <div class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm">
 
-                    {{-- HEADER DESKTOP --}}
                     <div class="hidden md:grid grid-cols-[54px_minmax(0,1fr)_120px_150px] gap-4 px-3 py-3 bg-slate-50 rounded-xl text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
                         <div>Foto</div>
                         <div>Nama Barang</div>
@@ -343,7 +295,6 @@
 
                             <div class="border border-slate-100 rounded-xl p-3 hover:border-slate-200 transition-colors">
 
-                                {{-- MOBILE --}}
                                 <div class="md:hidden">
 
                                     <div class="flex gap-3">
@@ -400,7 +351,6 @@
                                     </div>
                                 </div>
 
-                                {{-- DESKTOP --}}
                                 <div class="hidden md:grid grid-cols-[54px_minmax(0,1fr)_120px_150px] gap-4 items-center">
 
                                     <div class="w-14 h-14 rounded-lg bg-slate-50 overflow-hidden flex items-center justify-center border border-slate-200">
@@ -487,7 +437,6 @@
                 </div>
             </div>
 
-            {{-- RINGKASAN PEMBAYARAN --}}
             <div class="order-2 xl:col-start-2 xl:row-start-1 xl:row-span-2">
 
                 <div class="xl:sticky xl:top-28">
@@ -635,12 +584,10 @@
                 </div>
             </div>
 
-            {{-- INFORMASI PENGEMBALIAN TRANSAKSI AKTIF --}}
             @if($isAktif)
 
                 <div class="order-3 xl:col-start-1 xl:row-start-2">
 
-                    {{-- MASA SEWA --}}
                     @if($statusWaktu === 'sewa')
 
                         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
@@ -682,7 +629,6 @@
 
                     @endif
 
-                    {{-- MASA TOLERANSI --}}
                     @if($statusWaktu === 'toleransi')
 
                         <div class="bg-white border border-amber-200 rounded-2xl p-5 shadow-sm">
@@ -731,7 +677,6 @@
 
                     @endif
 
-                   {{-- TERLAMBAT --}}
 @if($statusWaktu === 'terlambat')
 
     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
@@ -792,7 +737,6 @@
 
             @endif
 
-            {{-- INFORMASI STATUS LAINNYA --}}
             @if(in_array($transaksi->status, ['menunggu', 'ditolak', 'selesai']))
 
                 <div class="order-3 xl:col-start-1 xl:row-start-2">

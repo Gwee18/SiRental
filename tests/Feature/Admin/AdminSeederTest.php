@@ -160,14 +160,6 @@ class AdminSeederTest extends TestCase
             'tidak boleh digunakan pada production'
         );
 
-        /*
-         * Jangan memakai $this->seed() saat environment production.
-         * Command db:seed Laravel akan meminta konfirmasi interaktif
-         * sebelum menjalankan seeder pada production.
-         *
-         * Panggil seeder secara langsung agar test hanya menguji
-         * validasi keamanan milik AdminSeeder.
-         */
         $this->app
             ->make(AdminSeeder::class)
             ->run();

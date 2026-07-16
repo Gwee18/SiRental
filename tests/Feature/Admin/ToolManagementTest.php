@@ -44,9 +44,6 @@ class ToolManagementTest extends TestCase
     {
         $admin = $this->createAdmin();
 
-        /*
-         * Total 5 dan tersedia 3 berarti 2 unit sedang disewa.
-         */
         $alat = $this->createTool([
             'stok_total' => 5,
             'stok_tersedia' => 3,
@@ -74,10 +71,6 @@ class ToolManagementTest extends TestCase
         );
         $this->assertSame(8, $alat->stok_total);
 
-        /*
-         * Dua unit tetap dianggap sedang disewa:
-         * 8 total - 2 disewa = 6 tersedia.
-         */
         $this->assertSame(6, $alat->stok_tersedia);
     }
 
@@ -85,9 +78,6 @@ class ToolManagementTest extends TestCase
     {
         $admin = $this->createAdmin();
 
-        /*
-         * Total 5 dan tersedia 2 berarti 3 unit sedang disewa.
-         */
         $alat = $this->createTool([
             'stok_total' => 5,
             'stok_tersedia' => 2,

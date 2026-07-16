@@ -7,7 +7,6 @@
 <section class="min-h-[calc(100svh-76px)] bg-gray-50 pt-24 md:pt-28 pb-12 px-4 sm:px-6 flex items-center justify-center">
     <div class="w-full max-w-[420px]">
 
-        {{-- Header --}}
         <div class="text-center mb-5">
             <a href="{{ route('home') }}" class="inline-flex items-center justify-center">
                 <img
@@ -26,7 +25,6 @@
             </p>
         </div>
 
-        {{-- Card --}}
         <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6">
 
             @if(session('status'))
@@ -41,7 +39,6 @@
                 </div>
             @endif
 
-            {{-- Email OTP --}}
             <form method="POST" action="{{ route('login.send-otp') }}" class="space-y-4" autocomplete="off">
                 @csrf
 
@@ -71,7 +68,6 @@
                 </button>
             </form>
 
-            {{-- Divider --}}
             <div class="flex items-center gap-4 my-5">
                 <div class="flex-1 h-px bg-gray-100"></div>
 
@@ -82,7 +78,6 @@
                 <div class="flex-1 h-px bg-gray-100"></div>
             </div>
 
-            {{-- Google Login --}}
             <a
                 href="{{ route('google.redirect') }}"
                 class="w-full h-12 flex items-center justify-center gap-3 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-all duration-200 text-sm"
