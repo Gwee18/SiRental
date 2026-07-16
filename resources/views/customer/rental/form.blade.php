@@ -172,7 +172,11 @@
 }
 
 .step-content.hidden {
-    display: none;
+    display: none !important;
+}
+
+.step-content {
+    width: 100%;
 }
 
 .section-heading {
@@ -825,6 +829,7 @@
     }
 
     .summary-wide {
+        grid-column: 1 / -1;
         background: #FFFFFF;
         border: none;
         border-radius: 16px;
@@ -2026,85 +2031,6 @@
     }
 }
 
-
-    /* Data profil pada form rental */
-    .profile-data-note {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-bottom: 22px;
-        padding: 14px 16px;
-        border: 1px solid #C4E8DA;
-        border-radius: 14px;
-        background: #F1FAF6;
-        color: #0E5344;
-    }
-
-    .profile-data-note svg {
-        width: 20px;
-        height: 20px;
-        flex-shrink: 0;
-        margin-top: 1px;
-    }
-
-    .profile-data-note strong {
-        display: block;
-        color: #0A1F1A;
-        font-size: 14px;
-        font-weight: 800;
-        margin-bottom: 3px;
-    }
-
-    .profile-data-note span {
-        display: block;
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 1.5;
-    }
-
-    .profile-sync-card {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin: 4px 0 24px;
-        padding: 15px 16px;
-        border: 1px solid #D4DFD8;
-        border-radius: 14px;
-        background: #FFFFFF;
-        cursor: pointer;
-        transition: .2s ease;
-    }
-
-    .profile-sync-card:hover {
-        border-color: #68DBAE;
-        background: #F8FBF9;
-    }
-
-    .profile-sync-card input {
-        width: 18px;
-        height: 18px;
-        flex-shrink: 0;
-        margin-top: 2px;
-        accent-color: #085041;
-        cursor: pointer;
-    }
-
-    .profile-sync-card strong {
-        display: block;
-        color: #0A1F1A;
-        font-size: 14px;
-        font-weight: 800;
-        margin-bottom: 4px;
-    }
-
-    .profile-sync-card span {
-        display: block;
-        color: #5A6B64;
-        font-size: 13px;
-        font-weight: 500;
-        line-height: 1.5;
-    }
-
 </style>
 
 <div class="rental-page">
@@ -2173,25 +2099,6 @@
 
             <div class="rental-layout" id="rentalLayout">
                 <div class="wizard-card">
-                    <div class="wizard-top">
-                        <div class="stepper">
-                            <div class="step {{ $formStep == 1 ? 'active' : ($formStep > 1 ? 'done' : '') }}" id="stepNav1">
-                                <div class="step-circle">1</div>
-                                <div class="step-title">Detail Rental</div>
-                            </div>
-
-                            <div class="step {{ $formStep == 2 ? 'active' : ($formStep > 2 ? 'done' : '') }}" id="stepNav2">
-                                <div class="step-circle">2</div>
-                                <div class="step-title">Data Diri</div>
-                            </div>
-
-                            <div class="step {{ $formStep == 3 ? 'active' : '' }}" id="stepNav3">
-                                <div class="step-circle">3</div>
-                                <div class="step-title">Pembayaran</div>
-                            </div>
-                        </div>
-                    </div>
-
                     <div class="wizard-body">
 
                         {{-- STEP 1 --}}
@@ -2405,29 +2312,6 @@
                             </div>
 
 
-                            <div class="profile-data-note">
-                                <svg
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <circle cx="12" cy="8" r="4"/>
-                                    <path d="M4 21a8 8 0 0 1 16 0"/>
-                                </svg>
-
-                                <div>
-                                    <strong>
-                                        Data diisi otomatis dari profil
-                                    </strong>
-
-                                    <span>
-                                        Anda tetap dapat mengubahnya untuk
-                                        transaksi ini tanpa mengubah profil.
-                                    </span>
-                                </div>
-                            </div>
-
                             <div class="data-grid">
                                 <div>
                                     <div class="two-column">
@@ -2477,28 +2361,6 @@
                                             <p class="field-error show">{{ $message }}</p>
                                         @enderror
                                     </div>
-
-
-                                    <label class="profile-sync-card">
-                                        <input
-                                            type="checkbox"
-                                            name="simpan_ke_profil"
-                                            value="1"
-                                            @checked(old('simpan_ke_profil'))
-                                        >
-
-                                        <span>
-                                            <strong>
-                                                Simpan sebagai data profil terbaru
-                                            </strong>
-
-                                            <span>
-                                                Centang jika nama, nomor telepon,
-                                                dan alamat di atas juga ingin
-                                                digunakan pada rental berikutnya.
-                                            </span>
-                                        </span>
-                                    </label>
 
                                     <div class="form-group">
                                         <label class="form-label">Upload Foto KTP</label>
@@ -2663,65 +2525,78 @@
                     </div>
                 </div>
 
-                {{-- WIDE SUMMARY --}}
-<div class="summary-wide" id="summaryWide" style="{{ $formStep == 1 ? 'display: block;' : 'display: none;' }}">
-    <div class="summary-wide-title">Ringkasan Rental</div>
-    <div class="summary-wide-subtitle">Ringkasan otomatis berubah sesuai pilihan Anda</div>
+                {{-- WIDE SUMMARY: hanya tampil pada Step 1 --}}
+                <div
+                    class="summary-wide"
+                    id="summaryWide"
+                    style="{{ $formStep == 1 ? 'display: block;' : 'display: none;' }}"
+                >
+                    <div class="summary-wide-title">Ringkasan Rental</div>
+                    <div class="summary-wide-subtitle">
+                        Ringkasan otomatis berubah sesuai pilihan Anda.
+                    </div>
 
-    <div id="summary-wide-list" class="summary-wide-list">
-        <div class="summary-wide-empty">Belum ada barang yang dipilih</div>
-    </div>
+                    <div id="summary-wide-list" class="summary-wide-list">
+                        <div class="summary-wide-empty">
+                            Belum ada barang yang dipilih.
+                        </div>
+                    </div>
 
-    <div class="summary-wide-meta">
-        <div class="summary-wide-meta-item">
-            <span class="summary-wide-meta-label">Lama sewa:</span>
-            <strong class="summary-wide-meta-value" id="summary-wide-duration">-</strong>
-        </div>
+                    <div class="summary-wide-meta">
+                        <div class="summary-wide-meta-item">
+                            <span class="summary-wide-meta-label">Lama sewa:</span>
+                            <strong
+                                class="summary-wide-meta-value"
+                                id="summary-wide-duration"
+                            >
+                                -
+                            </strong>
+                        </div>
 
-        <div class="summary-wide-meta-item">
-            <span class="summary-wide-meta-label">Metode:</span>
-            <strong class="summary-wide-meta-value">Cash</strong>
-        </div>
-    </div>
+                        <div class="summary-wide-meta-item">
+                            <span class="summary-wide-meta-label">Metode:</span>
+                            <strong class="summary-wide-meta-value">Cash</strong>
+                        </div>
+                    </div>
 
-    <div class="summary-wide-total">
-        <div class="summary-wide-total-label">Total</div>
-        <div class="summary-wide-total-value" id="total-harga-wide">Rp 0</div>
-    </div>
+                    <div class="summary-wide-total">
+                        <div class="summary-wide-total-label">Total</div>
+                        <div
+                            class="summary-wide-total-value"
+                            id="total-harga-wide"
+                        >
+                            Rp 0
+                        </div>
+                    </div>
 
-    {{-- Tombol khusus mobile untuk Step 3 --}}
-    <div class="summary-mobile-actions">
-        <button type="button" class="btn btn-outline" onclick="pindahStep(2)">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M19 12H5"/>
-                <path d="M12 19l-7-7 7-7"/>
-            </svg>
-            Kembali
-        </button>
-
-        <button type="button" class="btn btn-submit" onclick="submitForm()">
-            Ajukan Rental
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path d="M22 2L11 13"/>
-                <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
-            </svg>
-        </button>
-    </div>
-</div>
-
-                    {{-- BUTTONS INSIDE SUMMARY --}}
                     <div class="summary-wide-buttons">
                         <a href="{{ route('home') }}" class="btn btn-secondary">
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <svg
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                            >
                                 <path d="M19 12H5"/>
                                 <path d="M12 19l-7-7 7-7"/>
                             </svg>
+
                             Kembali ke Beranda
                         </a>
 
-                        <button type="button" class="btn btn-primary" onclick="lanjutStep(2)">
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            onclick="lanjutStep(2)"
+                        >
                             Lanjut Isi Data Diri
-                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+
+                            <svg
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24"
+                            >
                                 <path d="M5 12h14"/>
                                 <path d="M12 5l7 7-7 7"/>
                             </svg>
