@@ -90,7 +90,7 @@
                                 Satu durasi sewa berlaku untuk semua barang dalam satu transaksi.
                             </p>
 
-                            <div id="duplicateToolNotice" class="duplicate-warning hidden" role="alert">
+                            <div id="duplicateToolNotice" class="duplicate-warning" role="alert" hidden>
                                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="9"/>
                                     <path d="M12 7v6"/>

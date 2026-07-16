@@ -38,8 +38,25 @@ class RentalFormViewTest extends TestCase
             ->assertOk()
             ->assertViewIs('customer.rental.form')
             ->assertSee('name="request_token"', false)
-            ->assertSee('id="duplicateToolNotice"', false)
+            ->assertSee(
+                'id="duplicateToolNotice" class="duplicate-warning" role="alert" hidden',
+                false
+            )
             ->assertDontSee('simpan_ke_profil')
             ->assertDontSee('Data diisi otomatis dari profil');
+
+        $css = file_get_contents(
+            resource_path('css/rental-form.css')
+        );
+
+        $this->assertNotFalse($css);
+        $this->assertStringContainsString(
+            '.duplicate-warning[hidden]',
+            $css
+        );
+        $this->assertStringContainsString(
+            'display: none !important;',
+            $css
+        );
     }
 }

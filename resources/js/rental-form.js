@@ -328,12 +328,17 @@ if (form) {
         });
 
         if (duplicates.size === 0) {
-            notice?.classList.add('hidden');
+            if (notice) {
+                notice.hidden = true;
+            }
+
             clearDuplicateServerErrors();
             return true;
         }
 
-        notice?.classList.remove('hidden');
+        if (notice) {
+            notice.hidden = false;
+        }
 
         if (focus && firstDuplicate) {
             firstDuplicate.scrollIntoView({ behavior: 'smooth', block: 'center' });

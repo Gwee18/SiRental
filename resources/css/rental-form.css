@@ -1998,6 +1998,11 @@
     line-height: 1.5;
 }
 
+
+.duplicate-warning[hidden] {
+    display: none !important;
+}
+
 .duplicate-warning svg {
     width: 20px;
     height: 20px;
